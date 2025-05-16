@@ -26,3 +26,9 @@ mkdir bin
 gcc -Wall -Wextra -g3 -I../include -o bin/main.exe *.c
 
 ./main.exe
+
+mingw32-make clean
+
+mingw32-make
+
+mingw32-make run
