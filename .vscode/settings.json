@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "*.py": "python",
+        "modulo_consulta.h": "c",
+        "string.h": "c",
+        "modulo_gerenciar_medico.h": "c"
+    }
+}
