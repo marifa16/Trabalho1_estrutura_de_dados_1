@@ -3,6 +3,11 @@
         "*.py": "python",
         "modulo_consulta.h": "c",
         "string.h": "c",
-        "modulo_gerenciar_medico.h": "c"
-    }
+        "modulo_gerenciar_medico.h": "c",
+        "modulo_relatorios.h": "c",
+        "stdio.h": "c",
+        "locale.h": "c",
+        "mensagens.h": "c"
+    },
+    "C_Cpp.default.compilerPath": "C:/MinGW/bin/gcc.exe"
 }

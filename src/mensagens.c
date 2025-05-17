@@ -1,11 +1,23 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include "../include/mensagens.h"
+
+void msg_00_informacoes_programa()
+{
+    printf("Bem vindo ao sistema de gerenciamento médico\n");
+    printf("Desenvolvido por:\n"
+           "ANDERSON CARLOS DA SILVA MORAIS\n"
+           "MARILIA FONSECA ANDRADE\n");
+    printf("Versão 1.0\n");
+}
 
 void msg_01_agendar_consulta()
 {
     printf("===========================\n"
-           "Bem-vindo!\n\n"
+           "     Módulo Consultas      \n"
+           "===========================\n"
            "Opções disponíveis:\n\n"
-           "[1] - Agendar consulta\n"
+           "[1] - Agendar\n"
            "[2] - Cancelar\n"
            "[3] - Voltar\n"
            "[4] - Sair\n\n"
@@ -23,7 +35,7 @@ void msg_02_opcao_invalida()
 void msg_03_finalizacao()
 {
     printf("===========================\n"
-           "Operação finalizada com sucesso.\n"
+           "Programa encerrado.\n"
            "===========================\n");
 }
 
@@ -250,6 +262,8 @@ void msg_32_mudar_algo()
 void msg_33_boas_vindas()
 {
     printf("===========================\n"
+           "      Módulo Principal      \n"
+           "===========================\n"
            "O que deseja realizar hoje:\n\n"
            "[1] - Agendar Consulta\n"
            "[2] - Gerenciar Paciente\n"
@@ -295,52 +309,49 @@ void msg_36_especialidade_consulta()
            "===========================\n");
 }
 
-void mostrar_menu_principal()
+void msg_37_mostrar_modulo_paciente()
 {
     printf("===========================\n"
-           "O que deseja realizar hoje:\n\n"
-           "[1] - Agendar Consulta\n"
-           "[2] - Gerenciar Paciente\n"
-           "[3] - Gerenciar Médico\n"
-           "[4] - Módulo Relatório\n"
-           "[5] - Sair\n"
+           "      Módulo paciente      \n"
+           "===========================\n"
+           "[1] - Criar\n"
+           "[2] - Exibir\n"
+           "[3] - Atualizar\n"
+           "[4] - Deletar\n"
+           "[5] - Voltar\n"
+           "[6] - Sair\n"
            "===========================\n");
 }
 
-void mostrar_modulo_consulta()
+void msg_38_mostrar_modulo_medico()
 {
-    printf("\nMódulo Consulta:\n");
-    printf("(Retornando automaticamente...)\n");
+    printf("===========================\n"
+           "        Módulo médico      \n"
+           "===========================\n"
+           "[1] - Criar\n"
+           "[2] - Exibir\n"
+           "[3] - Atualizar\n"
+           "[4] - Deletar\n"
+           "[5] - Voltar\n"
+           "[6] - Sair\n"
+           "===========================\n");
 }
 
-void mostrar_modulo_paciente()
+void msg_39_mostrar_modulo_relatorios()
 {
-    printf("\nGerenciar Paciente:\n");
-    printf("(Retornando automaticamente...)\n");
+    printf("===========================\n"
+           "    Módulo Relatórios      \n"
+           "===========================\n"
+           "[1] - Criar\n"
+           "[2] - Exibir\n"
+           "[3] - Atualizar\n"
+           "[4] - Deletar\n"
+           "[5] - Voltar\n"
+           "[6] - Sair\n"
+           "===========================\n");
 }
 
-void mostrar_modulo_medico()
+void clear()
 {
-    printf("\nGerenciar Médico:\n");
-    printf("(Retornando automaticamente...)\n");
-}
-
-void mostrar_modulo_relatorios()
-{
-    printf("\nMódulo Relatórios:\n");
-    printf("(Retornando automaticamente...)\n");
-}
-
-void informacoes_boas_vindas()
-{
-    printf("Bem vindo ao sistema de gerenciamento médico\n");
-    printf("Desenvolvido por:\n"
-           "ANDERSON CARLOS DA SILVA MORAIS\n"
-           "MARILIA FONSECA ANDRADE\n");
-    printf("Versão 1.0\n");
-}
-
-void mensagem_encerramento()
-{
-    printf("Programa encerrado.\n");
+    system("clear || cls");
 }

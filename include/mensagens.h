@@ -42,7 +42,11 @@ void mostrar_modulo_consulta();
 void mostrar_modulo_paciente();
 void mostrar_modulo_medico();
 void mostrar_modulo_relatorios();
-void informacoes_boas_vindas();
+void msg_00_informacoes_programa();
 void mensagem_encerramento();
+void clear();
+void msg_37_mostrar_modulo_paciente();
+void msg_38_mostrar_modulo_medico();
+void msg_39_mostrar_modulo_relatorios();
 
 #endif
