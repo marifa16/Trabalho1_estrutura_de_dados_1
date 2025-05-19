@@ -108,14 +108,14 @@ void msg_11_nome_paciente()
 void msg_12_validar_nome_paciente()
 {
     printf("===========================\n"
-           "Podemos seguir com o nome: *******?\n"
+           "Podemos seguir com o nome:\n"
            "===========================\n");
 }
 
 void msg_13_informar_cpf()
 {
     printf("===========================\n"
-           "Insira seu CPF:\n"
+           "Insira seu CPF: (Só os números)\n"
            "===========================\n");
 }
 
