@@ -1,39 +1,49 @@
+#include <stdio.h>
 #include "../include/estados.h"
 #include "../include/mensagens.h"
 #include "../include/modulo_relatorios.h"
 
-Estado tratar_modulo_relatorios(int entrada)
+Estado tratar_modulo_relatorios()
 {
-    switch (entrada)
+    Estado estado_atual = ESTADO_MODULO_RELATORIOS;
+    int escolha_modulo;
+
+    do
     {
-    case 1: // Agendar
-        // validar paciente
-        // listar médicos
-        // perguntar qual medico deseja se consultar
-        // receber o médico escolhido
-        // opção é válida?
-        // listar horários disponíveis
-        // exibir horários disponíveis
-        // usuario escolhe horário
-        // validar horário
-        // gera um reg_consulta
-        // salvar reg_consulta e exibir mensagem de sucesso
+        msg_39_mostrar_modulo_relatorios(); // Exibe o menu de relatórios
+        scanf("%d", &escolha_modulo);
 
-        return ESTADO_MENU_PRINCIPAL; //
+        switch (escolha_modulo)
+        {
+        case 1: // Consultas de pacientes
+            // Lógica para exibir consultas de pacientes
+            break;
 
-    case 2: // Cancelar
-        // Aqui você pode chamar a função de cancelamento
+        case 2: // Consultas de médicos
+            // Lógica para exibir consultas de médicos
+            break;
 
-        return ESTADO_MENU_PRINCIPAL;
+        case 3: // Consultas de especialistas
+            // Lógica para exibir consultas de especialistas
+            break;
 
-    case 3: // Retornar menu
-        return ESTADO_MENU_PRINCIPAL;
+        case 4: // Consultas do dia
+            // Lógica para exibir consultas do dia
+            break;
 
-    case 4: // Sair programa
-        return ESTADO_SAIR;
+        case 5: // Voltar ao menu principal
+            estado_atual = ESTADO_MENU_PRINCIPAL;
+            break;
 
-    default: // inválido
-        msg_02_opcao_invalida();
-        return ESTADO_MODULO_RELATORIOS;
-    }
+        case 6: // Sair do programa
+            estado_atual = ESTADO_SAIR;
+            break;
+
+        default:
+            msg_02_opcao_invalida();
+            break;
+        }
+    } while (estado_atual == ESTADO_MODULO_RELATORIOS);
+
+    return estado_atual;
 }

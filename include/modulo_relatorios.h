@@ -6,6 +6,6 @@
 
 // Funções relacionadas ao módulo de relatórios
 void mostrar_modulo_relatorios();
-Estado tratar_modulo_relatorios(int entrada);
+Estado tratar_modulo_relatorios();
 
 #endif

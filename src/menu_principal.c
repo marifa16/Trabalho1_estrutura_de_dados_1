@@ -2,9 +2,14 @@
 #include "../include/estados.h"
 #include "../include/mensagens.h"
 
-Estado tratar_menu_principal(int entrada)
+Estado tratar_menu_principal()
 {
-    switch (entrada)
+    int escolha = 0;
+
+    msg_33_boas_vindas();  // exibe o menu principal
+    scanf("%d", &escolha); // lê a entrada do usuário
+
+    switch (escolha)
     {
     case 1: // Módulo Consultas
         return ESTADO_MENU_CONSULTA;

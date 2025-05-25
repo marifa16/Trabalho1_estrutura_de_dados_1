@@ -25,6 +25,7 @@ void msg_20_novo_telefone();
 void msg_21_validar_paciente();
 void msg_22_criar_medico();
 void msg_23_nome_medico();
+void msg_24_validar_nome_medico();
 void msg_25_atualizar_medico();
 void msg_26_novo_crm();
 void msg_27_nova_especialidade();

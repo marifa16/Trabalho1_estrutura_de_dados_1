@@ -5,6 +5,6 @@
 
 // Funções relacionadas ao módulo de consulta
 void mostrar_modulo_consulta();
-Estado tratar_modulo_consulta(int entrada);
+Estado tratar_modulo_consulta();
 
 #endif

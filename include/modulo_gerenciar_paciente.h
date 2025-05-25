@@ -5,6 +5,6 @@
 
 // Funções relacionadas ao gerenciamento de pacientes
 void mostrar_modulo_paciente();
-Estado tratar_modulo_paciente(int entrada);
+Estado tratar_modulo_paciente();
 
 #endif

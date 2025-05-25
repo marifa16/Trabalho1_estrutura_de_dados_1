@@ -4,6 +4,6 @@
 #include "../include/estados.h"
 
 // Declaração da função
-Estado tratar_menu_principal(int entrada);
+Estado tratar_menu_principal();
 
 #endif

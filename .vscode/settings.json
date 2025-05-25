@@ -7,7 +7,9 @@
         "modulo_relatorios.h": "c",
         "stdio.h": "c",
         "locale.h": "c",
-        "mensagens.h": "c"
+        "mensagens.h": "c",
+        "modulo_gerenciar_paciente.h": "c",
+        "time.h": "c"
     },
     "C_Cpp.default.compilerPath": "C:/MinGW/bin/gcc.exe"
 }
