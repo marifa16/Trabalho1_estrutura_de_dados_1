@@ -59,9 +59,6 @@ void msg_06_escolher_medico()
 {
     printf("===========================\n"
            "Qual médico Sr.(a) deseja se consultar:\n\n"
-           "[1] -\n"
-           "[2] -\n"
-           "[n] -\n"
            "===========================\n");
 }
 
@@ -196,6 +193,13 @@ void msg_23_nome_medico()
            "===========================\n");
 }
 
+void msg_24_validar_nome_medico()
+{
+    printf("===========================\n"
+           "Podemos seguir com o nome:\n"
+           "===========================\n");
+}
+
 void msg_25_atualizar_medico()
 {
     printf("===========================\n"
@@ -255,7 +259,7 @@ void msg_31_cpf()
 void msg_32_mudar_algo()
 {
     printf("===========================\n"
-           "Deseja mudar mais alguma coisa?\n"
+           "Deseja mudar mais alguma coisa? (Sim/Não)\n"
            "===========================\n");
 }
 
