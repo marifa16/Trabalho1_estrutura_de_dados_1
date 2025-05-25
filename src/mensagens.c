@@ -355,6 +355,14 @@ void msg_39_mostrar_modulo_relatorios()
            "===========================\n");
 }
 
+void msg_40_opcoes()
+{
+    printf("Podemos seguir com a opção fornecida?\n"
+           "[1] - SIM  \n"
+           "[2] - NÃO  \n"
+           "[3] - SAIR \n");
+}
+
 void clear()
 {
     system("clear || cls");

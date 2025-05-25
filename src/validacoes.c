@@ -1,54 +1,41 @@
 #include <stdio.h>
 #include <string.h>
+#include "../include/estruturas.h"
 #include "../include/validacoes.h"
 #include "../include/mensagens.h"
 
-typedef struct
-{
-    char nome[100];
-    int crm;
-    char especialidade[100];
-    int telefone;
-} Medico;
-
-typedef struct
-{
-    char nome[100];
-    int cpf;
-    int telefone_paciente;
-} Paciente;
-
 // Acesso ao vetor de pacientes
-extern Paciente *pacientes; // Ponteiro para o vetor de pacientes
-extern int total_pacientes; // Contador de pacientes cadastrados
-extern Medico *medicos;
+extern reg_paciente *pacientes; // Ponteiro para o vetor de pacientes
+extern int total_pacientes;     // Contador de pacientes cadastrados
+extern reg_medico *medicos;
 extern int total_medicos;
 
 int validar_paciente()
 {
-    // Implementação da validação de paciente
-    int cpf;
+    char cpf[12];   // CPF como string (11 dígitos + '\0')
     char opcao[10]; // Variável para armazenar a opção sim/não/sair
 
     msg_31_cpf();
-    scanf("%d", &cpf); // Lê o CPF do usuário
+    fgets(cpf, sizeof(cpf), stdin); // Lê o CPF do usuário como string
+    cpf[strcspn(cpf, "\n")] = '\0'; // Remove o caractere de nova linha
 
     for (int i = 0; i < total_pacientes; i++) // Percorre o vetor de pacientes
     {
-        if (pacientes[i].cpf == cpf) // Se o CPF do paciente cadastrado for igual ao CPF informado
+        if (strcmp(pacientes[i].cpf, cpf) == 0) // Compara strings
         {
             printf("=====================\n");
-            printf("Paciente cadastrado.\n");                         // Exibe mensagem de sucesso
-            printf("Nome: %s\n", pacientes[i].nome);                  // Exibe o nome do paciente
-            printf("CPF: %d\n", pacientes[i].cpf);                    // Exibe o CPF do paciente
-            printf("Telefone: %d\n", pacientes[i].telefone_paciente); // Exibe o telefone do paciente
+            printf("Paciente cadastrado.\n");                // Exibe mensagem de sucesso
+            printf("Nome: %s\n", pacientes[i].nome);         // Exibe o nome do paciente
+            printf("CPF: %s\n", pacientes[i].cpf);           // Exibe o CPF do paciente
+            printf("Telefone: %s\n", pacientes[i].telefone); // Exibe o telefone do paciente
             printf("=====================\n");
             return 1; // Retorna 1 se o CPF foi encontrado
         }
     }
     printf("Paciente não cadastrado.\n");         // Exibe mensagem de erro
     printf("Digite SAIR para voltar ao menu.\n"); // Informa ao usuário como voltar ao menu principal
-    scanf("%s", opcao);                           // Lê a opção do usuário
+    fgets(opcao, sizeof(opcao), stdin);           // Lê a opção do usuário
+    opcao[strcspn(opcao, "\n")] = '\0';           // Remove o caractere de nova linha
     if (strcmp(opcao, "SAIR") == 0)               // Se a opção for "SAIR"
     {
         printf("Voltando ao menu...\n"); // Exibe mensagem de retorno

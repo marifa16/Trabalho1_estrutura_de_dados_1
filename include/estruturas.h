@@ -15,7 +15,7 @@ typedef enum
 
 // Definição da struct para consultas
 typedef struct
-{   
+{
     int id_consulta;
     int id_paciente;
     int id_medico;
@@ -35,11 +35,12 @@ typedef struct
 } reg_medico;
 
 // Definição da struct para pacientes
-typedef struct {
+typedef struct
+{
     int id_paciente;
     char nome[120];
-    int cpf;
-    int telefone;
+    char cpf[12];      // Alterado para string (11 dígitos + '\0')
+    char telefone[12]; // Alterado para string (11 dígitos + '\0')
 } reg_paciente;
 
 #endif

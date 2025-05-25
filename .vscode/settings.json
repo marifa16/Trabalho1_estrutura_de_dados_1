@@ -10,7 +10,8 @@
         "mensagens.h": "c",
         "modulo_gerenciar_paciente.h": "c",
         "time.h": "c",
-        "validacoes.h": "c"
+        "validacoes.h": "c",
+        "stdlib.h": "c"
     },
     "C_Cpp.default.compilerPath": "C:/MinGW/bin/gcc.exe"
 }

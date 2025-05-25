@@ -49,5 +49,6 @@ void clear();
 void msg_37_mostrar_modulo_paciente();
 void msg_38_mostrar_modulo_medico();
 void msg_39_mostrar_modulo_relatorios();
+void msg_40_opcoes();
 
 #endif
