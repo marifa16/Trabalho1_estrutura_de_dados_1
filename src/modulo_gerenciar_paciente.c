@@ -18,9 +18,18 @@ Estado tratar_modulo_paciente()
     do
     {
         msg_37_mostrar_modulo_paciente(); // Exibe o menu de gerenciamento de pacientes
+
+        // Limpa o buffer de entrada se o próximo caractere for '\n'
+        int c = getchar();
+        if (c != '\n' && c != EOF)
+        {
+            ungetc(c, stdin); // Devolve o caractere se não era '\n'
+        }
+
         char escolha_modulo_str[10];
         fgets(escolha_modulo_str, sizeof(escolha_modulo_str), stdin); // Lê a entrada como string
         escolha_modulo_str[strcspn(escolha_modulo_str, "\n")] = '\0'; // Remove o caractere de nova linha
+        // printf("DEBUG: [%s]\n", escolha_modulo_str);
 
         // Converte a entrada para inteiro
         if (sscanf(escolha_modulo_str, "%d", &escolha_modulo) != 1)

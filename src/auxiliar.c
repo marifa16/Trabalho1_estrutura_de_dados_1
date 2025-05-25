@@ -38,7 +38,7 @@ int validar_opcao_usuario()
     do
     {
         // Lê a opção do usuário
-        //limpar_buffer(); // Limpa o buffer antes de capturar a entrada
+        // limpar_buffer(); // Limpa o buffer antes de capturar a entrada
         msg_40_opcoes();
 
         if (fgets(opcao, sizeof(opcao), stdin) == NULL)
@@ -71,8 +71,8 @@ int validar_cpf(char *cpf, size_t tamanho)
 {
     do
     {
-        msg_13_informar_cpf();          // Mensagem para solicitar o CPF
-        //limpar_buffer();                // Limpa o buffer antes de capturar o CPF
+        msg_13_informar_cpf(); // Mensagem para solicitar o CPF
+        // limpar_buffer();                // Limpa o buffer antes de capturar o CPF
         fgets(cpf, tamanho, stdin);     // Lê o CPF como string
         cpf[strcspn(cpf, "\n")] = '\0'; // Remove o caractere de nova linha
 
@@ -110,8 +110,8 @@ int validar_telefone(char *telefone, size_t tamanho)
 {
     do
     {
-        msg_14_informar_telefone();               // Mensagem para solicitar o telefone
-        //limpar_buffer();                          // Limpa o buffer antes de capturar o telefone
+        msg_14_informar_telefone(); // Mensagem para solicitar o telefone
+        // limpar_buffer();                          // Limpa o buffer antes de capturar o telefone
         fgets(telefone, tamanho, stdin);          // Lê o telefone como string
         telefone[strcspn(telefone, "\n")] = '\0'; // Remove o caractere de nova linha
 
