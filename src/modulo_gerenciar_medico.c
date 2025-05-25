@@ -1,4 +1,4 @@
-#include "../include/estados.h"
+#include "../include/estruturas.h"
 #include "../include/mensagens.h"
 #include "../include/modulo_gerenciar_medico.h"
 #include "../include/validacoes.h"

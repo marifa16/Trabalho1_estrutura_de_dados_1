@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "../include/estados.h"
+#include "../include/estruturas.h"
 #include "../include/mensagens.h"
 
 Estado tratar_menu_principal()

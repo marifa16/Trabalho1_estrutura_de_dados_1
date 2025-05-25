@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../include/estados.h"
+#include "../include/estruturas.h"
 #include "../include/mensagens.h"
 #include "../include/modulo_gerenciar_paciente.h"
 #include "../include/validacoes.h"

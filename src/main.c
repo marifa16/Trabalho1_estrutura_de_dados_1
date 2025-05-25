@@ -3,7 +3,7 @@
 #include <locale.h>
 #include <string.h>
 #include "../include/mensagens.h"                 // Inclui o cabeçalho de mensagens
-#include "../include/estados.h"                   // Inclui o cabeçalho de estados
+#include "../include/estruturas.h"                // Inclui o cabeçalho das estruturas
 #include "../include/modulo_consulta.h"           // Inclui o cabeçalho do módulo de consulta
 #include "../include/modulo_gerenciar_paciente.h" // Inclui o cabeçalho do módulo de gerenciamento de pacientes
 #include "../include/modulo_gerenciar_medico.h"   // Inclui o cabeçalho do módulo de gerenciamento de médicos
@@ -14,7 +14,7 @@
 int main()
 {
     setlocale(LC_ALL, "pt_BR.UTF-8");            // Configura o locale para português do Brasil com suporte a UTF-8
-    Estado estado_atual = ESTADO_MENU_PRINCIPAL; // variável para controlar os menus             // variável para armazenar a entrada do usuário
+    Estado estado_atual = ESTADO_MENU_PRINCIPAL; // variável para controlar os menus
 
     inicializar_arquivos_csv();
 
@@ -27,7 +27,6 @@ int main()
         {
         case ESTADO_MENU_PRINCIPAL:
         {
-
             estado_atual = tratar_menu_principal(); // trata a entrada do menu principal
             break;
         }
@@ -56,5 +55,6 @@ int main()
     }
 
     msg_03_finalizacao();
+
     return 0;
 }

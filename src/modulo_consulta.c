@@ -2,34 +2,17 @@
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../include/estruturas.h"
 #include "../include/modulo_consulta.h"
-#include "../include/estados.h"
 #include "../include/mensagens.h"
 #include "../include/modulo_gerenciar_medico.h"
 
-// Struct consulta
-typedef struct
-{
-    int cpf_paciente;
-    int crm_medico;
-    int dia, mes, ano;
-    int horario;
-} Consulta;
-
-typedef struct
-{
-    char nome[100];
-    int crm;
-    char especialidade[100];
-    int telefone;
-} Medico;
-
 // Vetor de consultas
-Consulta *consultas = NULL;
+reg_consulta *consultas = NULL;
 int total_consultas = 0;
 
 // Externos já existentes
-extern Medico *medicos;
+extern reg_medico *medicos;
 extern int total_medicos;
 extern int validar_paciente();
 

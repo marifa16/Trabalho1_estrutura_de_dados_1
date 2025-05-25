@@ -1,7 +1,7 @@
 #ifndef MODULO_RELATORIOS_H
 #define MODULO_RELATORIOS_H
 
-#include "estados.h"
+#include "estruturas.h"
 #include "modulo_gerenciar_paciente.h"
 
 // Funções relacionadas ao módulo de relatórios
