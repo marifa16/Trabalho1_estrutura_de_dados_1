@@ -13,6 +13,12 @@ typedef enum
     ESTADO_SAIR
 } Estado;
 
+typedef enum{
+    AGENDADA,
+    REALIZADA,
+    CANCELADA
+} status_consulta;
+
 // Definição da struct para consultas
 typedef struct
 {
@@ -20,14 +26,13 @@ typedef struct
     int id_paciente;
     int id_medico;
     struct tm data_hora;
-    int cpf_paciente;
-    int crm_medico;
-    int dia, mes, ano;
+    status_consulta status;
 } reg_consulta;
 
 // Definição da struct para médicos
 typedef struct
 {
+    int id_medico;
     char nome[100];
     int crm;
     char especialidade[100];
