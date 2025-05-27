@@ -58,8 +58,10 @@ typedef struct
     int id_medico;
     char nome[100];
     int crm;
+    Especialidade especialidade_medico;
     char especialidade[100];
     char telefone[12];
+    Horario horarios[9];
 } reg_medico;
 
 // Definição da struct para pacientes
