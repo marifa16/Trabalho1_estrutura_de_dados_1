@@ -146,20 +146,13 @@ int validar_telefone(char *telefone, size_t tamanho)
 }
 
 // Converte reg_medico para array de strings (buffers externos para campos numéricos)
-void medico_to_array(const reg_medico *m, char *valores[4], char crm[], char telefone[])
+void medico_to_array(const reg_medico *m, char *valores[4], char crm[])
 {
-    valores[0] = (char *)m->nome; // Nome já é string, pode apontar direto
-    /* snprintf é uma função que escreve dados formatados em uma string
-     crm é o buffer onde a string será armazenada
-     16 é o tamanho máximo do buffer.
-     "%d" indica que queremos escrever um número inteiro decimal.
-     m->crm é o valor inteiro que será convertido para texto.
-    */
-    snprintf(crm, 16, "%d", m->crm); // Converte int para string
+    valores[0] = (char *)m->nome;    // Nome já é string
+    snprintf(crm, 16, "%d", m->crm); // CRM ainda é int, converte para string
     valores[1] = crm;
-    valores[2] = (char *)m->especialidade;     // Especialidade já é string
-    snprintf(telefone, 16, "%s", m->telefone); // Converte int para string
-    valores[3] = telefone;
+    valores[2] = (char *)m->especialidade; // Especialidade já é string
+    valores[3] = (char *)m->telefone;      // Telefone agora é string, só aponta
 }
 
 // Converte reg_paciente para array de strings (todos já são strings)

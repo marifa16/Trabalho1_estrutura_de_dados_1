@@ -7,6 +7,11 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+Estado tratar_modulo_medico()
+{
+    return ESTADO_MENU_PRINCIPAL;
+}
+
 const char *especialidade_string(Especialidade especialidade);
 
 reg_medico *medicos = NULL;

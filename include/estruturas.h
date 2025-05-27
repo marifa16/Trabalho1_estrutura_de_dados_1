@@ -13,6 +13,23 @@ typedef enum
     ESTADO_SAIR
 } Estado;
 
+typedef enum
+{
+    AGENDADA,
+    REALIZADA,
+    CANCELADA
+} status_consulta;
+
+typedef enum
+{
+    CLINICO_GERAL,
+    PEDIATRA,
+    CARDIOLOGISTA,
+    DERMATOLOGISTA,
+    PSIQUIATRA
+    // ...adicione outras especialidades se necessário
+} Especialidade;
+
 // Definição da struct para consultas
 typedef struct
 {
@@ -23,10 +40,12 @@ typedef struct
     int cpf_paciente;
     int crm_medico;
     int dia, mes, ano;
+    status_consulta status;
 } reg_consulta;
 
 // Definição da struct para horários
-typedef struct {
+typedef struct
+{
     int hora;          // Hora do atendimento (8-16)
     int ocupado;       // 0 = Livre, 1 = Ocupado
     char paciente[50]; // Nome do paciente (opcional)
@@ -40,7 +59,7 @@ typedef struct
     char nome[100];
     int crm;
     char especialidade[100];
-    int telefone;
+    char telefone[12];
 } reg_medico;
 
 // Definição da struct para pacientes
@@ -51,7 +70,6 @@ typedef struct
     char cpf[12];      // Alterado para string (11 dígitos + '\0')
     char telefone[12]; // Alterado para string (11 dígitos + '\0')
 } reg_paciente;
-
 
 // Declaração das variáveis globais como extern
 extern reg_medico *medicos; // Ponteiro para o vetor de médicos

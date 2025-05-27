@@ -192,10 +192,91 @@ Estado tratar_modulo_paciente()
             break;
         }
         case 3: // Atualizar Paciente
-            // Implementação para atualizar paciente
-            printf("Atualizando paciente...\n");
-            break;
+        {
+            char cpf_busca[12];
+            printf("Digite o CPF do paciente para atualizar: ");
+            fgets(cpf_busca, sizeof(cpf_busca), stdin);
+            cpf_busca[strcspn(cpf_busca, "\n")] = '\0';
 
+            // 1. Buscar linha do paciente pelo CPF
+            int linha = buscar_linha(file_paciente, 2, cpf_busca);
+            if (linha < 0)
+            {
+                printf("Paciente com CPF %s não encontrado!\n", cpf_busca);
+                return ESTADO_GERENCIAR_PACIENTE;
+            }
+
+            // 2. Ler a linha atual do paciente
+            FILE *arquivo = fopen(file_paciente, "r");
+            if (!arquivo)
+            {
+                printf("Erro ao abrir o arquivo!\n");
+                return ESTADO_GERENCIAR_PACIENTE;
+            }
+            char linha_csv[512];
+            fgets(linha_csv, sizeof(linha_csv), arquivo); // pula cabeçalho
+            for (int i = 0; i <= linha; i++)
+                fgets(linha_csv, sizeof(linha_csv), arquivo);
+            fclose(arquivo);
+
+            // 3. Separar os campos
+            char *tokens[4];
+            char linha_copia[512];
+            strcpy(linha_copia, linha_csv);
+            char *token = strtok(linha_copia, ",\n");
+            int i = 0;
+            while (token && i < 4)
+            {
+                tokens[i++] = token;
+                token = strtok(NULL, ",\n");
+            }
+            // tokens[0]=id, tokens[1]=nome, tokens[2]=cpf, tokens[3]=telefone
+
+            int continuar = 1;
+            while (continuar)
+            {
+                printf("\nQual informação deseja atualizar?\n");
+                printf("1 - Nome\n2 - CPF\n3 - Telefone\nEscolha: ");
+                char opcao_str[10];
+                fgets(opcao_str, sizeof(opcao_str), stdin);
+                int opcao = atoi(opcao_str);
+
+                switch (opcao)
+                {
+                case 1:
+                    validar_nome_paciente(tokens[1], sizeof(linha_copia) - 1);
+                    break;
+                case 2:
+                    validar_cpf(tokens[2], sizeof(linha_copia) - 1);
+                    break;
+                case 3:
+                    validar_telefone(tokens[3], sizeof(linha_copia) - 1);
+                    break;
+                default:
+                    printf("Opção inválida!\n");
+                    continue;
+                }
+
+                printf("Deseja atualizar mais alguma informação? (1-Sim, 0-Não): ");
+                char resp[10];
+                fgets(resp, sizeof(resp), stdin);
+                if (atoi(resp) == 0)
+                    continuar = 0;
+            }
+
+            // 4. Atualizar a linha do paciente
+            char *valores[4];
+            valores[0] = tokens[0]; // id
+            valores[1] = tokens[1]; // nome
+            valores[2] = tokens[2]; // cpf
+            valores[3] = tokens[3]; // telefone
+
+            if (att_row(file_paciente, linha, 4, valores))
+                printf("Paciente atualizado com sucesso!\n");
+            else
+                printf("Erro ao atualizar paciente!\n");
+            break;
+        }
         case 4:
         { // Deletar Paciente
             char cpf_busca[12];
@@ -216,17 +297,21 @@ Estado tratar_modulo_paciente()
                 printf("Erro ao deletar paciente!\n");
             break;
         }
-        case 5: // Voltar ao menu principal
+        case 5:
+        { // Voltar ao menu principal
             estado_atual = ESTADO_MENU_PRINCIPAL;
             break;
-
-        case 6: // Sair do programa
+        }
+        case 6:
+        { // Sair do programa
             estado_atual = ESTADO_SAIR;
             break;
-
+        }
         default:
+        {
             msg_02_opcao_invalida();
             break;
+        }
         }
     } while (estado_atual == ESTADO_GERENCIAR_PACIENTE);
 
