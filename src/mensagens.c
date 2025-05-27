@@ -307,9 +307,6 @@ void msg_36_especialidade_consulta()
 {
     printf("===========================\n"
            "Qual especialidade deseja consultar:\n\n"
-           "[1] -\n"
-           "[2] -\n"
-           "[n] -\n"
            "===========================\n");
 }
 
@@ -361,6 +358,13 @@ void msg_40_opcoes()
            "[1] - SIM  \n"
            "[2] - NÃO  \n"
            "[3] - SAIR \n");
+}
+
+void msg_41_especialidade_medico()
+{
+    printf("===========================\n"
+           "        Especialidade      \n"
+           "===========================\n");
 }
 
 void clear()

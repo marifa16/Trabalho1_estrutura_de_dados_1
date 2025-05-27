@@ -10,6 +10,9 @@ extern int total_pacientes;     // Contador de pacientes cadastrados
 extern reg_medico *medicos;
 extern int total_medicos;
 
+// Declaração da função espcialidade_string
+const char *especialidade_sttring(Especialidade especialidade);
+
 int validar_paciente()
 {
     char cpf[12];   // CPF como string (11 dígitos + '\0')
@@ -62,8 +65,8 @@ int validar_medico()
             printf("Médico cadastrado.\n");                          // Exibe mensagem de sucesso
             printf("Nome: %s\n", medicos[i].nome);                   // Exibe o nome do médico
             printf("CRM: %d\n", medicos[i].crm);                     // Exibe o CRM do médico
-            printf("Especialidade: %s\n", medicos[i].especialidade); // Exibe a especialidade do médico
-            printf("Telefone: %d\n", medicos[i].telefone);           // Exibe o telefone do médico
+            printf("Especialidade: %s\n", especialidade_string(medicos[i].especialidade_medico)); // Exibe a especialidade do médico
+            printf("Telefone: %d\n", medicos[i].telefone_medico);           // Exibe o telefone do médico
             printf("=====================\n");
             return 1; // Retorna 1 se o CPF foi encontrado
         }

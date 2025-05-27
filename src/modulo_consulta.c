@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
@@ -6,241 +7,239 @@
 #include "../include/modulo_consulta.h"
 #include "../include/mensagens.h"
 #include "../include/modulo_gerenciar_medico.h"
+#include "../include/validacoes.h"
+#include "../include/auxiliar.h"
+#include "../include/modulo_gerenciar_paciente.h"
 
-// Vetor de consultas
-reg_consulta *consultas = NULL;
-int total_consultas = 0;
-
-// Externos já existentes
-extern reg_medico *medicos;
-extern int total_medicos;
-extern int validar_paciente();
-
-// Função para obter o CPF do paciente
-int obter_cpf_paciente_valido()
-{
-    int cpf;
-    // char opcao[10];
-    msg_31_cpf();
-    scanf("%d", &cpf);
-    // Valida se o CPF existe no vetor de pacientes
-    return cpf;
-}
+// Vetor global
+reg_consulta *consultas = NULL; // Ponteiro para vetor consultas
+int total_consultas = 0;        // Contador
 
 Estado tratar_modulo_consulta()
 {
     Estado estado_atual = ESTADO_MENU_CONSULTA; // Inicializa o estado como ESTADO_MENU_CONSULTA
     int escolha = 0;
+    char escolha_str[10]; // Variável para armazenar a entrada do usuário
 
     do
     {
         // Exibe o menu de consultas
         msg_01_agendar_consulta();
-        scanf("%d", &escolha);
+        fgets(escolha_str, sizeof(escolha_str), stdin); // Lê a entrada do usuário como string
+        escolha_str[strcspn(escolha_str, "\n")] = '\0'; // Remove o caractere de nova linha
+
+        // Converte a entrada para inteiro
+        if (sscanf(escolha_str, "%d", &escolha) != 1)
+        {
+            msg_02_opcao_invalida();
+            continue;
+        }
 
         switch (escolha)
         {
-        case 1: // Agendar
-        /*
+        case 1: // Agendar Consulta
         {
-                  // Valida paciente
-                  int cpf_paciente = obter_cpf_paciente_valido();
-                  if (!validar_paciente())
-                  {
-                      break; // Retorna ao menu de consultas
-                  }
+            int crm_medico, mes;
 
-                  // Lista médicos cadastrados
-                  if (total_medicos == 0)
-                  {
-                      printf("Nenhum médico cadastrado.\n");
-                      break;
-                  }
+            // Valida o paciente
+            if (!validar_paciente())
+            {
+                msg_05_retornando_menu();
+                return ESTADO_MENU_PRINCIPAL; // Retorna ao menu principal se o CPF não for encontrado
+            }
 
-                  printf("=====================\n");
-                  printf("Médicos Disponíveis:\n");
-                  printf("=====================\n");
-                  for (int i = 0; i < total_medicos; i++)
-                  {
-                      printf("[%d] - %s (CRM: %d, Especialidade: %s)\n", i + 1, medicos[i].nome, medicos[i].crm, medicos[i].especialidade);
-                  }
+            // Exibe médicos disponíveis
+            printf("====================\n");
+            printf("Médicos Disponíveis:\n");
+            printf("====================\n");
+            for (int i = 0; i < total_medicos; i++)
+            {
+                printf("[%d] - %s (CRM: %d, Especialidade: %s)\n", i + 1, medicos[i].nome, medicos[i].crm, especialidade_string(medicos[i].especialidade_medico));
+            }
 
-                  // Escolha do médico
-                  int escolha_medico = 0;
-                  char opcao[10];
-                  while (1)
-                  {
-                      msg_06_escolher_medico();
-                      scanf("%d", &escolha_medico);
-                      if (escolha_medico >= 1 && escolha_medico <= total_medicos)
-                      {
-                          printf("Você escolheu: %s. Confirma?\n", medicos[escolha_medico - 1].nome);
-                          printf("1 - Continuar\n2 - Escolher outro médico\n3 - Sair\n");
-                          scanf("%s", opcao);
-                          if (strcmp(opcao, "1") == 0)
-                          {
-                              break;
-                          }
-                          else if (strcmp(opcao, "2") == 0)
-                          {
-                              continue;
-                          }
-                          else if (strcmp(opcao, "3") == 0)
-                          {
-                              return ESTADO_MENU_CONSULTA;
-                          }
-                          else
-                          {
-                              msg_02_opcao_invalida();
-                          }
-                      }
-                      else
-                      {
-                          msg_02_opcao_invalida();
-                      }
-                  }
+            // Escolha do médico
+            int escolha_medico = 0;      // Variável para armazenar a escolha do médico
+            char escolha_medico_str[10]; // escolha do médico como string
+            do
+            {
+                msg_06_escolher_medico();
+                fgets(escolha_medico_str, sizeof(escolha_medico_str), stdin); // Lê a entrada do usuário como string
+                escolha_medico_str[strcspn(escolha_medico_str, "\n")] = '\0'; // Remove o caractere de nova linha
 
-                  // Escolher data
-                  int dia, mes, ano = 2025;
-                  int dias_mes[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+                // Converte a entrada para inteiro
+                if (sscanf(escolha_medico_str, "%d", &escolha_medico) != 1 || escolha_medico < 1 || escolha_medico > total_medicos)
+                {
+                    msg_02_opcao_invalida();
+                    continue; // Volta para solicitar a escolha do médico
+                }
 
-                  while (1)
-                  {
-                      printf("Digite o mês desejado (1 - 12): ");
-                      scanf("%d", &mes);
-                      printf("Digite o dia desejado: ");
-                      scanf("%d", &dia);
+                crm_medico = medicos[escolha_medico - 1].crm; // Obtém o CRM do médico escolhido
+                printf("Você escolheu: %s\nCRM: %d\nEspecialidade: %s\n", medicos[escolha_medico - 1].nome, crm_medico, especialidade_string(medicos[escolha_medico - 1].especialidade_medico));
 
-                      // Validação do mês e dia
-                      if (mes < 1 || mes > 12 || dia < 1 || dia > dias_mes[mes - 1])
-                      {
-                          printf("Data inválida!\n");
-                          continue;
-                      }
+                // Função Validar
+                int opcao = validar_opcao_usuario();
+                if (opcao == 1) // SIM
+                {
+                    break; // Sai do loop
+                }
+                else if (opcao == 2) // NÃO
+                {
+                    continue; // Volta para solicitar a escolha do médico
+                }
+                else if (opcao == 3) // SAIR
+                {
+                    msg_05_retornando_menu();
+                    return ESTADO_MENU_PRINCIPAL; // Retorna ao menu principal
+                }
+                else
+                {
+                    msg_02_opcao_invalida();
+                }
+            } while (1);
 
-                      // Verifica se é domingo
-                      struct tm data = {0};
-                      data.tm_year = ano - 1900;
-                      data.tm_mon = mes - 1;
-                      data.tm_mday = dia;
-                      mktime(&data);
-                      if (data.tm_wday == 0)
-                      {
-                          printf("Não há atendimentos no domingo! Por favor, escolha outra data.\n");
-                          continue;
-                      }
+            // Escolher data
+            struct tm data_consulta = {0};
+            data_consulta.tm_year = 2025 - 1900; // Define o ano (2025)
 
-                      printf("Você escolheu: %02d/%02d/%d. Podemos confirmar?\n", dia, mes, ano);
-                      printf("1 - Continuar\n2 - Escolher outra data\n3 - Sair\n");
-                      scanf("%s", opcao);
-                      if (strcmp(opcao, "1") == 0)
-                      {
-                          break;
-                      }
-                      else if (strcmp(opcao, "2") == 0)
-                      {
-                          continue;
-                      }
-                      else if (strcmp(opcao, "3") == 0)
-                      {
-                          return ESTADO_MENU_CONSULTA;
-                      }
-                      else
-                      {
-                          msg_02_opcao_invalida();
-                      }
-                  }
+            do
+            {
+                char dia_str[10], mes_str[10];
 
-                  // Escolher horário
-                  int horarios_ocupados[9] = {0}; // 8 horas às 16 horas
-                  for (int i = 0; i < total_consultas; i++)
-                  {
-                      if (consultas[i].crm_medico == medicos[escolha_medico - 1].crm && consultas[i].dia == dia && consultas[i].mes == mes && consultas[i].ano == ano)
-                      {
-                          int h = consultas[i].horario;
-                          if (h >= 8 && h <= 16)
-                          {
-                              horarios_ocupados[h - 8] = 1;
-                          }
-                      }
-                  }
+                // Solicita o mês
+                printf("Digite o mês desejado (1-12):\n");
+                fgets(mes_str, sizeof(mes_str), stdin); // Lê a entrada do usuário como string
+                mes_str[strcspn(mes_str, "\n")] = '\0'; // Remove o caractere de nova linha
+                // Converte a entrada para inteiro
+                if (sscanf(mes_str, "%d", &mes) != 1 || mes < 1 || mes > 12)
+                {
+                    msg_02_opcao_invalida();
+                    continue; // Volta para solicitar o mês
+                }
+                data_consulta.tm_mon = mes - 1; // Define o mês (0-11)
 
-                  // Exibe horários livres
-                  int h_livre = 0;
-                  printf("Horários disponíveis para %02d/%02d/%d:\n", dia, mes, ano);
-                  for (int h = 8; h <= 16; h++)
-                  {
-                      if (!horarios_ocupados[h - 8])
-                      {
-                          printf("[%d] - %02d:00\n", h, h);
-                          h_livre = 1;
-                      }
-                  }
-                  if (!h_livre)
-                  {
-                      printf("Não possui horário disponível para esse dia!\n");
-                      break;
-                  }
+                // Solicita o dia
+                printf("Digite o dia desejado:\n");
+                fgets(dia_str, sizeof(dia_str), stdin); // Lê a entrada como string
+                dia_str[strcspn(dia_str, "\n")] = '\0'; // Remove o caractere de nova linha
+                // Converte a ebtrada para inteiro
+                if (sscanf(dia_str, "%d", &data_consulta.tm_mday) != 1 || data_consulta.tm_mday < 1)
+                {
+                    msg_02_opcao_invalida();
+                    continue;
+                }
 
-                  // Escolha do horário
-                  int escolha_horario;
-                  while (1)
-                  {
-                      printf("Escolha um horário (Digite a hora no formato: 08:00): \n");
-                      scanf("%d", &escolha_horario);
-                      if (escolha_horario >= 8 && escolha_horario <= 16 && !horarios_ocupados[escolha_horario - 8])
-                      {
-                          printf("Você escolheu %02d:00. Podemos confirmar?\n", escolha_horario);
-                          printf("1 - Continuar\n2 - Escolher outra data\n3 - Sair\n");
-                          scanf("%s", opcao);
-                          if (strcmp(opcao, "1") == 0)
-                          {
-                              break;
-                          }
-                          else if (strcmp(opcao, "2") == 0)
-                          {
-                              continue;
-                          }
-                          else if (strcmp(opcao, "3") == 0)
-                          {
-                              return ESTADO_MENU_CONSULTA;
-                          }
-                          else
-                          {
-                              msg_02_opcao_invalida();
-                          }
-                      }
-                      else
-                      {
-                          msg_02_opcao_invalida();
-                      }
-                  }
+                // Valida a data
+                if (mktime(&data_consulta) == -1)
+                {
+                    msg_02_opcao_invalida();
+                    printf("Data inválida. Por favor, insira uma data válida.\n");
+                    continue; // Volta a solicitar a data
+                }
 
-                  // Salvar consulta
-                  Consulta nova;
-                  nova.cpf_paciente = cpf_paciente;
-                  nova.crm_medico = medicos[escolha_medico - 1].crm;
-                  nova.dia = dia;
-                  nova.mes = mes;
-                  nova.ano = ano;
-                  nova.horario = escolha_horario;
+                // Verifica se é domingo
+                if (data_consulta.tm_wday == 0)
+                {
+                    printf("Não há atendimentos aos domingos. Escolha outra data.\n");
+                    continue; // Volta para solicitar a data
+                }
 
-                  Consulta *tmp = realloc(consultas, (total_consultas + 1) * sizeof(Consulta));
-                  if (tmp == NULL)
-                  {
-                      printf("Erro ao alocar memória para a consulta.\n");
-                      exit(1);
-                  }
-                  consultas = tmp;
-                  consultas[total_consultas++] = nova;
+                // Exibe a data escolhida
+                printf("Data escolhida: %02d/%02d/%d\n", data_consulta.tm_mday, data_consulta.tm_mon + 1, data_consulta.tm_year + 1900);
 
-                  msg_08_sucesso_agendamento();
-                  printf("Marcada para: %s em %02d/%02d/%d às %02d:00!\n", medicos[escolha_medico - 1].nome, dia, mes, ano, escolha_horario);
+                // Função Validar
+                int opcao = validar_opcao_usuario();
+                if (opcao == 1) // SIM
+                {
+                    break; // Sai do loop
+                }
+                else if (opcao == 2) // NÃO
+                {
+                    continue; // Volta para solicitar a data novamente
+                }
+                else if (opcao == 3) // SAIR
+                {
+                    msg_05_retornando_menu();
+                    return ESTADO_MENU_CONSULTA; // Retorna ao menu de consulta
+                }
+                else
+                {
+                    msg_02_opcao_invalida();
+                }
+            } while (1);
 
-                  estado_atual = ESTADO_MENU_PRINCIPAL;
-                  break;
-              }
-              */
+            // Exibe horários livres do médico selecionado
+            int horario_escolhido = -1;
+
+            do
+            {
+                printf("Horários disponimes para o médico %s no dia %02d/%02d/%d:\n", medicos[escolha_medico - 1].nome, data_consulta.tm_mday, data_consulta.tm_mon + 1, data_consulta.tm_year + 1900);
+
+                int horario_livre = 0;
+                for (int i = 0; i < 9; i++) // Horários das 8h às 16h
+                {
+                    medicos[total_medicos].horarios[i].hora = 8 + i;         // Define as horas (8h, 9h, ..., 16h)
+                    medicos[total_medicos].horarios[i].ocupado = 0;          // Marca todos os horários como livres
+                    strcpy(medicos[total_medicos].horarios[i].paciente, ""); // Inicializa o nome do paciente como vazio
+                    strcpy(medicos[total_medicos].horarios[i].medico, "");   // Inicializa o nome do médico como vazio
+                }
+                if (!horario_livre)
+                {
+                    printf("Não há horário disponível para esse médico neste dia. Escolha outro médico ou data.\n");
+                    return ESTADO_MENU_CONSULTA; // Retorna ao menu consulta
+                }
+
+                // Solicita o horário
+                printf("Escolha um horário:\n");
+                char horario_str[10];
+                fgets(horario_str, sizeof(horario_str), stdin); // Lê o horário como string
+                horario_str[strcspn(horario_str, "\n")] = '\0'; // Remove o caractere de nova linha
+
+                // Converte para inteiro
+                if (sscanf(horario_str, "%d", &horario_escolhido) != 1 || horario_escolhido < 8 || horario_escolhido > 16)
+                {
+                    msg_02_opcao_invalida();
+                    continue; // Volta para solicitar o horário
+                }
+
+                // Verifica se o horário está ocupado
+                int indice = horario_escolhido - 8; // Calcula o índice no vetor
+                if (medicos[escolha_medico - 1].horarios[indice].ocupado)
+                {
+                    printf("O horário %02d:00 já está ocupado. Escolha outro horário.\n", horario_escolhido);
+                    continue;
+                }
+
+                // Exibe o horário escolhido
+                printf("Horário escolhido: %02d:00\n", horario_escolhido);
+
+                // Função Validar
+                int opcao = validar_opcao_usuario();
+                if (opcao == 1) // SIM
+                {
+                    // Marca o horário
+                    medicos[escolha_medico - 1].horarios[indice].ocupado = 1;
+                    strcpy(medicos[escolha_medico - 1].horarios[indice].paciente, "Nome do Paciente"); // Armazena o nome do paciente que agendou a consulta naquele horário
+
+                    msg_08_sucesso_agendamento();
+                    printf("Marcada para %02d/%02d/%d às %02d:00 com o médico %s.\n", data_consulta.tm_mday, data_consulta.tm_mon + 1, data_consulta.tm_year + 1900, horario_escolhido, medicos[escolha_medico - 1].nome);
+                    return ESTADO_MENU_CONSULTA;
+                }
+                else if (opcao == 2) // NÃO
+                {
+                    continue; // Volta a solicitar o horario
+                }
+                else if (opcao == 3) // SAIR
+                {
+                    msg_05_retornando_menu();
+                    return ESTADO_MENU_CONSULTA;
+                }
+                else
+                {
+                    msg_02_opcao_invalida();
+                }
+            } while (1);
+        }
+
         case 2: // Cancelar
             printf("Cancelamento de consulta selecionado.\n");
             estado_atual = ESTADO_MENU_CONSULTA;
@@ -262,54 +261,3 @@ Estado tratar_modulo_consulta()
 
     return estado_atual;
 }
-
-/*
-int main()
-{
-    Estado estado_atual = ESTADO_MENU_CONSULTA;
-
-    // Inicializa médicos para teste
-    total_medicos = 3;
-    medicos = malloc(total_medicos * sizeof(Medico));
-    strcpy(medicos[0].nome, "Dr. João");
-    medicos[0].crm = 123;
-    strcpy(medicos[0].especialidade, "Cardiologia");
-    medicos[0].telefone = 1111;
-
-    strcpy(medicos[1].nome, "Dra. Maria");
-    medicos[1].crm = 456;
-    strcpy(medicos[1].especialidade, "Pediatria");
-    medicos[1].telefone = 2222;
-
-    strcpy(medicos[2].nome, "Dr. José");
-    medicos[2].crm = 789;
-    strcpy(medicos[2].especialidade, "Ortopedia");
-    medicos[2].telefone = 3333;
-
-    while (estado_atual != ESTADO_SAIR)
-    {
-        switch (estado_atual)
-        {
-        case ESTADO_MENU_CONSULTA:
-            estado_atual = tratar_modulo_consulta();
-            break;
-
-        case ESTADO_MENU_PRINCIPAL:
-            // Aqui você pode chamar o módulo de gerenciamento principal
-            printf("Retornando ao menu principal...\n");
-            estado_atual = ESTADO_SAIR; // Para sair do programa, remova esta linha para continuar no loop
-            break;
-
-        default:
-            printf("Estado desconhecido!\n");
-            estado_atual = ESTADO_SAIR;
-            break;
-        }
-    }
-
-    // Libera memória dos médicos
-    free(medicos);
-
-    return 0;
-}
-    */
