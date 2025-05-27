@@ -2,15 +2,12 @@
 #include "../include/mensagens.h"
 #include "../include/modulo_gerenciar_medico.h"
 #include "../include/validacoes.h"
+#include "../include/files_manager.h"
+#include "../include/auxiliar.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-
-Estado tratar_modulo_medico()
-{
-    return ESTADO_MENU_PRINCIPAL;
-}
 
 const char *especialidade_string(Especialidade especialidade);
 
@@ -50,13 +47,15 @@ Estado tratar_modulo_medico()
         {
             char nome_medico[100];              // Variável para armazenar o nome do médico
             int crm;                            // Variável para armazenar o CRM do médico
-            int telefone_medico;                // Variável para armazenar o telefone do médico
+            char telefone[12];                  // Variável para armazenar o telefone do médico
+            char telefone_str[15];              // Agora visível em todo o escopo
             Especialidade especialidade_medico; // Variável para controlar o loop de saída
 
             // Nome médico
             do
             {
                 msg_23_nome_medico();
+                limpar_buffer();
                 fgets(nome_medico, sizeof(nome_medico), stdin); // Lê o nome do méddico como string
                 nome_medico[strcspn(nome_medico, "\n")] = '\0'; // Remove o caractere de nova linha
 
@@ -170,9 +169,8 @@ Estado tratar_modulo_medico()
             do
             {
                 msg_14_informar_telefone();
-                char telefone_str[15];                            // Variável que armazena o telefone como string
-                fgets(telefone_str, sizeof(telefone_str), stdin); // Lê o telefone como string
-                telefone_str[strcspn(telefone_str, "\n")] = '\0'; // Remove o caractere de linha
+                fgets(telefone_str, sizeof(telefone_str), stdin);
+                telefone_str[strcspn(telefone_str, "\n")] = '\0';
 
                 // Verifica se o telefone tem 11 digitos
                 if (strlen(telefone_str) != 11)
@@ -199,8 +197,8 @@ Estado tratar_modulo_medico()
                     continue; // Volta para solicitar o telefone
                 }
 
-                telefone_medico = atoi(telefone_str);                   // Converte o telefone para inteiro
-                printf("O telefone informado foi: %s\n", telefone_str); // Exibe o telefone do médico
+                strcpy(telefone, telefone_str);
+                printf("O telefone informado foi: %s\n", telefone);
 
                 // Função Validar
                 int opcao = validar_opcao_usuario();
@@ -258,17 +256,26 @@ Estado tratar_modulo_medico()
 
                     if (opcao == 1) // SIM
                     {
-                        medicos = realloc(medicos, (total_medicos + 1) * sizeof(reg_medico));
-                        if (medicos == NULL) // Verifica se a realocação foi sucecedida
-                        {
-                            printf("Erro ao alocar memória para o médico.\n");
-                            return (1);
+                        reg_medico *tmp = realloc(medicos, (total_medicos + 1) * sizeof(reg_medico));
+                        if (tmp == NULL)
+                        { /* erro */
                         }
+                        medicos = tmp;
                         strcpy(medicos[total_medicos].nome, nome_medico);
                         medicos[total_medicos].crm = crm;
-                        medicos[total_medicos].telefone_medico = telefone_medico;
+                        strcpy(medicos[total_medicos].telefone, telefone_str); // telefone_str está visível aqui!
                         medicos[total_medicos].especialidade_medico = especialidade_medico;
                         total_medicos++; // Incrementa o total de médicos
+
+                        // Adiciona o médico ao arquivo CSV
+                        char *valores[4];
+                        char crm_str[16];
+                        snprintf(crm_str, sizeof(crm_str), "%d", medicos[total_medicos - 1].crm);
+                        valores[0] = medicos[total_medicos - 1].nome;
+                        valores[1] = crm_str;
+                        valores[2] = (char *)especialidade_string(medicos[total_medicos - 1].especialidade_medico);
+                        valores[3] = medicos[total_medicos - 1].telefone; // telefone já é string!
+                        add_row("data/registro_medicos.csv", 5, valores);
 
                         msg_29_sucesso_cadastro_medico();
                         return 1; // Retorna 1 para indicar que o médico foi cadastrado com sucesso
@@ -331,9 +338,9 @@ const char *especialidade_string(Especialidade especialidade)
     {
     case CLINICO_GERAL:
         return "Clínico Geral";
-    case PEDRIATRA:
-        return "Pedriatra";
-    case CARDIOLOGIDTA:
+    case PEDIATRA:
+        return "Pediatra";
+    case CARDIOLOGISTA:
         return "Cardiologista";
     case DERMATOLOGISTA:
         return "Dermatologista";

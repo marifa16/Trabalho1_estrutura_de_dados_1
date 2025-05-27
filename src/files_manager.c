@@ -146,7 +146,7 @@ void read_row(const char *nome_arquivo, int id)
                     printf("========================================\n");
                     printf("ID Consulta : %d\n", id_lido);
                     printf("ID Paciente : %d\n", id_pac);
-                    printf("ID Médico   : %d\n", id_med);
+                    printf("ID M?dico   : %d\n", id_med);
                     printf("Data/Hora   : %s\n", data_hora);
                     printf("Status      : %s\n", status);
                     printf("========================================\n");
