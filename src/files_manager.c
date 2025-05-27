@@ -267,3 +267,81 @@ int get_maior_id(const char *nome_arquivo)
 
     return maior_id;
 }
+
+// Retorna 1 se encontrar, 0 se não encontrar. Se row==true, retorna a linha encontrada (>=0) ou -1 se não encontrou
+int get_linhas(const char *nome_arquivo, int indice_coluna, const char *valor_busca, bool row)
+{
+    FILE *arquivo = fopen(nome_arquivo, "r");
+    if (arquivo == NULL)
+        return row ? -1 : 0;
+
+    char linha[512];
+    fgets(linha, sizeof(linha), arquivo); // Pula o cabeçalho
+
+    int linha_atual = 0;
+    while (fgets(linha, sizeof(linha), arquivo))
+    {
+        char *token;
+        char linha_copia[512];
+        strcpy(linha_copia, linha);
+
+        int coluna_atual = 0;
+        token = strtok(linha_copia, ",\n");
+        while (token != NULL)
+        {
+            if (coluna_atual == indice_coluna)
+            {
+                if (strcmp(token, valor_busca) == 0)
+                {
+                    fclose(arquivo);
+                    return row ? linha_atual : 1;
+                }
+                break;
+            }
+            token = strtok(NULL, ",\n");
+            coluna_atual++;
+        }
+        linha_atual++;
+    }
+
+    fclose(arquivo);
+    return row ? -1 : 0;
+}
+
+void view_file(const char *nome_arquivo)
+{
+    FILE *arquivo = fopen(nome_arquivo, "r");
+    if (!arquivo)
+    {
+        printf("Erro ao abrir o arquivo '%s'.\n", nome_arquivo);
+        return;
+    }
+
+    char linha[512];
+    int primeira_linha = 1;
+
+    while (fgets(linha, sizeof(linha), arquivo))
+    {
+        char *token;
+        char *resto = linha;
+        int coluna = 0;
+
+        // Imprime cada campo com largura fixa para alinhar
+        while ((token = strtok(coluna == 0 ? resto : NULL, ",\n")) != NULL)
+        {
+            printf("| %-18s ", token);
+            coluna++;
+        }
+        printf("|\n");
+
+        // Linha separadora após o cabeçalho
+        if (primeira_linha)
+        {
+            for (int i = 0; i < coluna; i++)
+                printf("+--------------------");
+            printf("+\n");
+            primeira_linha = 0;
+        }
+    }
+    fclose(arquivo);
+}
