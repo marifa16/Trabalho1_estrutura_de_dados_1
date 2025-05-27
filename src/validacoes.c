@@ -65,8 +65,8 @@ int validar_medico()
             printf("Médico cadastrado.\n");                          // Exibe mensagem de sucesso
             printf("Nome: %s\n", medicos[i].nome);                   // Exibe o nome do médico
             printf("CRM: %d\n", medicos[i].crm);                     // Exibe o CRM do médico
-            printf("Especialidade: %s\n", especialidade_string(medicos[i].especialidade_medico)); // Exibe a especialidade do médico
-            printf("Telefone: %d\n", medicos[i].telefone_medico);           // Exibe o telefone do médico
+            printf("Especialidade: %s\n", medicos[i].especialidade); // Exibe a especialidade do médico
+            printf("Telefone: %d\n", medicos[i].telefone);           // Exibe o telefone do médico
             printf("=====================\n");
             return 1; // Retorna 1 se o CPF foi encontrado
         }

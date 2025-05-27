@@ -13,28 +13,16 @@ typedef enum
     ESTADO_SAIR
 } Estado;
 
-typedef enum
-{
-    CLINICO_GERAL,
-    PEDRIATRA,
-    CARDIOLOGIDTA,
-    DERMATOLOGISTA,
-    PSIQUIATRA,
-    TOTAL_ESPECIALIDADES // Conta as especialidades
-} Especialidade;
-
-// Declaração da função especialidade_string
-const char *especialidade_string(Especialidade especialidade);
-
 // Definição da struct para consultas
 typedef struct
 {
     int id_consulta;
     int id_paciente;
     int id_medico;
-    struct tm data_consulta;
+    struct tm data_hora;
     int cpf_paciente;
     int crm_medico;
+    int dia, mes, ano;
 } reg_consulta;
 
 // Definição da struct para horários
@@ -48,11 +36,11 @@ typedef struct {
 // Definição da struct para médicos
 typedef struct
 {
+    int id_medico;
     char nome[100];
     int crm;
-    Especialidade especialidade_medico;
-    int telefone_medico;
-    Horario horarios[9];
+    char especialidade[100];
+    int telefone;
 } reg_medico;
 
 // Definição da struct para pacientes

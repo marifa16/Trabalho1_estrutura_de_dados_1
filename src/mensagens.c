@@ -8,7 +8,7 @@ void msg_00_informacoes_programa()
     printf("Desenvolvido por:\n"
            "ANDERSON CARLOS DA SILVA MORAIS\n"
            "MARILIA FONSECA ANDRADE\n");
-    printf("Versão 1.0\n");
+    printf("Versão 0.300.151 Alfa\n");
 }
 
 void msg_01_agendar_consulta()
