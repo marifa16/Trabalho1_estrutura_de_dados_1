@@ -6,9 +6,11 @@
 #include "../include/modulo_gerenciar_paciente.h"
 #include "../include/validacoes.h"
 #include "../include/auxiliar.h"
+#include "../include/files_manager.h"
 
 reg_paciente *pacientes = NULL; // Ponteiro para o vetor de pacientes
 int total_pacientes = 0;        // Contador de pacientes cadastrados
+char file_paciente[] = "data/registro_pacientes.csv";
 
 Estado tratar_modulo_paciente()
 {
@@ -92,6 +94,7 @@ Estado tratar_modulo_paciente()
                 }
 
                 // Confirmação do CPF
+                limpar_buffer();
                 int opcao = validar_opcao_usuario();
 
                 if (opcao == 1) // SIM
@@ -125,6 +128,7 @@ Estado tratar_modulo_paciente()
                 }
 
                 // Confirmação do telefone
+                limpar_buffer();
                 int opcao = validar_opcao_usuario();
 
                 if (opcao == 1) // SIM
@@ -159,25 +163,59 @@ Estado tratar_modulo_paciente()
             strcpy(pacientes[total_pacientes].telefone, telefone_paciente); // Salva o telefone
             total_pacientes++;                                              // Incrementa o contador de pacientes
 
-            msg_15_sucesso_cadastro(); // Exibe mensagem de sucesso
+            char *valores[3];
+
+            valores[0] = nome_paciente;
+            valores[1] = cpf_paciente;
+            valores[2] = telefone_paciente;
+            add_row(file_paciente, 4, valores); // 4 colunas (id + 3 campos)
+            msg_15_sucesso_cadastro();
             break;
         }
 
-        case 2: // Exibir Paciente
-            // Implementação para exibir paciente
-            printf("Exibindo pacientes...\n");
-            break;
+        case 2:
+        { // Exibir Paciente
+            char cpf_busca[12];
+            printf("Digite o CPF do paciente para exibir: ");
+            fgets(cpf_busca, sizeof(cpf_busca), stdin);
+            cpf_busca[strcspn(cpf_busca, "\n")] = '\0';
 
+            int id = get_id(file_paciente, 2, cpf_busca);
+            if (id < 0)
+            {
+                printf("Paciente com CPF %s não encontrado!\n", cpf_busca);
+            }
+            else
+            {
+                read_row(file_paciente, id);
+            }
+            break;
+        }
         case 3: // Atualizar Paciente
             // Implementação para atualizar paciente
             printf("Atualizando paciente...\n");
             break;
 
-        case 4: // Deletar Paciente
-            // Implementação para deletar paciente
-            printf("Deletando paciente...\n");
-            break;
+        case 4:
+        { // Deletar Paciente
+            char cpf_busca[12];
+            printf("Digite o CPF do paciente para deletar: ");
+            fgets(cpf_busca, sizeof(cpf_busca), stdin);
+            cpf_busca[strcspn(cpf_busca, "\n")] = '\0';
 
+            int linha = buscar_linha(file_paciente, 2, cpf_busca);
+            if (linha < 0)
+            {
+                printf("Paciente com CPF %s não encontrado!\n", cpf_busca);
+                break;
+            }
+
+            if (del_row(file_paciente, linha))
+                printf("Paciente deletado com sucesso!\n");
+            else
+                printf("Erro ao deletar paciente!\n");
+            break;
+        }
         case 5: // Voltar ao menu principal
             estado_atual = ESTADO_MENU_PRINCIPAL;
             break;

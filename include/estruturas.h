@@ -13,7 +13,8 @@ typedef enum
     ESTADO_SAIR
 } Estado;
 
-typedef enum{
+typedef enum
+{
     AGENDADA,
     REALIZADA,
     CANCELADA
@@ -36,7 +37,7 @@ typedef struct
     char nome[100];
     int crm;
     char especialidade[100];
-    int telefone;
+    char telefone[12];
 } reg_medico;
 
 // Definição da struct para pacientes
