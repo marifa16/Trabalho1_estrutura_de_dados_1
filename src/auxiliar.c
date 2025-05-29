@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+#include <strings.h> // Para strcasecmp
 #include "../include/estruturas.h"
 #include "../include/mensagens.h"
 #include "../include/modulo_gerenciar_paciente.h"
@@ -327,4 +329,104 @@ int buscar_linha(const char *nome_arquivo, int indice_coluna, const char *valor_
 int contem_valor(const char *nome_arquivo, int indice_coluna, const char *valor_busca)
 {
     return buscar_linha(nome_arquivo, indice_coluna, valor_busca) >= 0 ? 1 : 0;
+}
+
+// Busca o nome do paciente pelo id_paciente
+void buscar_nome_paciente_por_id(int id_paciente, char *nome, size_t tamanho)
+{
+    char id_str[16];
+    snprintf(id_str, sizeof(id_str), "%d", id_paciente);
+    int linha = buscar_linha("data/registro_pacientes.csv", 0, id_str);
+    if (linha < 0)
+    {
+        strncpy(nome, "Desconhecido", tamanho);
+        return;
+    }
+    FILE *arq = fopen("data/registro_pacientes.csv", "r");
+    if (!arq)
+    {
+        strncpy(nome, "Desconhecido", tamanho);
+        return;
+    }
+    char linha_arq[512];
+    fgets(linha_arq, sizeof(linha_arq), arq); // pula cabeçalho
+    for (int i = 0; i <= linha; i++)
+        fgets(linha_arq, sizeof(linha_arq), arq);
+    int id_tmp;
+    char nome_lido[120];
+    if (sscanf(linha_arq, "%d,%119[^,]", &id_tmp, nome_lido) == 2)
+        strncpy(nome, nome_lido, tamanho);
+    else
+        strncpy(nome, "Desconhecido", tamanho);
+    fclose(arq);
+}
+
+// Busca o nome do médico pelo id_medico
+void buscar_nome_medico_por_id(int id_medico, char *nome, size_t tamanho)
+{
+    char id_str[16];
+    snprintf(id_str, sizeof(id_str), "%d", id_medico);
+    int linha = buscar_linha("data/registro_medicos.csv", 0, id_str);
+    if (linha < 0)
+    {
+        strncpy(nome, "Desconhecido", tamanho);
+        return;
+    }
+    FILE *arq = fopen("data/registro_medicos.csv", "r");
+    if (!arq)
+    {
+        strncpy(nome, "Desconhecido", tamanho);
+        return;
+    }
+    char linha_arq[512];
+    fgets(linha_arq, sizeof(linha_arq), arq); // pula cabeçalho
+    for (int i = 0; i <= linha; i++)
+        fgets(linha_arq, sizeof(linha_arq), arq);
+    int id_tmp;
+    char nome_lido[100];
+    if (sscanf(linha_arq, "%d,%99[^,]", &id_tmp, nome_lido) == 2)
+        strncpy(nome, nome_lido, tamanho);
+    else
+        strncpy(nome, "Desconhecido", tamanho);
+    fclose(arq);
+}
+
+// Verifica se a string data_hora está no dia atual
+int validar_dia(const char *data_hora)
+{
+    int dia, mes, ano;
+    // Espera formato "dd/mm/yyyy hh:mm"
+    if (sscanf(data_hora, "%d/%d/%d", &dia, &mes, &ano) != 3)
+        return 0;
+
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+
+    return (dia == tm.tm_mday && mes == tm.tm_mon + 1 && ano == tm.tm_year + 1900);
+}
+
+// Retorna 1 se o médico do id possui a especialidade, 0 caso contrário
+int get_medico_especial(int id_medico, const char *especialidade)
+{
+    FILE *arq = fopen("data/registro_medicos.csv", "r");
+    if (!arq)
+        return 0;
+    char linha[512];
+    fgets(linha, sizeof(linha), arq); // pula cabeçalho
+    while (fgets(linha, sizeof(linha), arq))
+    {
+        int id;
+        char nome[100], crm[16], espec[100], telefone[16];
+        if (sscanf(linha, "%d,%99[^,],%15[^,],%99[^,],%15[^\n]", &id, nome, crm, espec, telefone) == 5)
+        {
+            // Use strcasecmp para ignorar maiúsculas/minúsculas
+            if (id == id_medico && strcasecmp(espec, especialidade) == 0)
+            {
+                fclose(arq);
+                return 1;
+            }
+        }
+    }
+    fclose(arq);
+    return 0;
 }

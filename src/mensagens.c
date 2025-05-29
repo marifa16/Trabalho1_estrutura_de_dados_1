@@ -307,6 +307,7 @@ void msg_36_especialidade_consulta()
 {
     printf("===========================\n"
            "Qual especialidade deseja consultar:\n\n"
+
            "===========================\n");
 }
 
@@ -343,12 +344,13 @@ void msg_39_mostrar_modulo_relatorios()
     printf("===========================\n"
            "    Módulo Relatórios      \n"
            "===========================\n"
-           "[1] - Criar\n"
-           "[2] - Exibir\n"
-           "[3] - Atualizar\n"
-           "[4] - Deletar\n"
-           "[5] - Voltar\n"
-           "[6] - Sair\n"
+           "[1] - Consultas por paciente informado\n"
+           "[2] - Consultas por médico informado\n"
+           "[3] - Consulta por especialista\n"
+           "[4] - Consultas do dia atual\n"
+           "[5] - Relatório de consultas por especialidade\n"
+           "[6] - Voltar\n"
+           "[7] - Sair\n"
            "===========================\n");
 }
 
@@ -370,4 +372,17 @@ void msg_41_especialidade_medico()
 void clear()
 {
     system("clear || cls");
+}
+
+void msg_42_especialidade_opcoes()
+{
+    printf("===========================\n"
+           "Escolha a especialidade:\n"
+           "[1] - CLINICO_GERAL\n"
+           "[2] - PEDIATRA\n"
+           "[3] - CARDIOLOGISTA\n"
+           "[4] - DERMATOLOGISTA\n"
+           "[5] - PSIQUIATRA\n"
+           "[0] - Voltar\n"
+           "===========================\n");
 }

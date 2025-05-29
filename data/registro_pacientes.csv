@@ -3,3 +3,4 @@ id_paciente,nome,cpf,telefone
 3,Paciente3,CPF003,11999990003
 5,PacienteAtualizado,CPF999,11999999999
 6,Paciente3,00000000003,11999990003
+999,PacienteTeste,00000000005,11999990003

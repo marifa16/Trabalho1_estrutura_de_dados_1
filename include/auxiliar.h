@@ -31,4 +31,11 @@ int buscar_linha(const char *nome_arquivo, int indice_coluna, const char *valor_
 
 int contem_valor(const char *nome_arquivo, int indice_coluna, const char *valor_busca);
 
+void buscar_nome_medico_por_id(int id_medico, char *nome, size_t tamanho);
+
+void buscar_nome_paciente_por_id(int id_paciente, char *nome, size_t tamanho);
+
+int validar_dia(const char *data_hora);
+
+int get_medico_especial(int id_medico, const char *especialidade);
 #endif

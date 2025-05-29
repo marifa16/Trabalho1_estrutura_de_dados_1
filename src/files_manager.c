@@ -287,35 +287,32 @@ void exibir_arquivo(const char *nome_arquivo, const char *modo, const char *valo
         tipo = 3;
 
     // Cabeçalhos padronizados
-    if (tipo == 1)
+    if (tipo == 1) // Médicos
     {
-        printf("+-----+--------------------------+---------+--------------------------+-------------+\n");
-        printf("| ID  | Nome                     | CRM     | Especialidade            | Telefone    |\n");
-        printf("+-----+--------------------------+---------+--------------------------+-------------+\n");
+        printf("+-----+----------------------------------------------------------------------------------------------------+---------+----------------------------------------------------------------------------------------------------+-------------+\n");
+        printf("| ID  | Nome                                                                                               | CRM     | Especialidade                                                                                      | Telefone    |\n");
+        printf("+-----+----------------------------------------------------------------------------------------------------+---------+----------------------------------------------------------------------------------------------------+-------------+\n");
     }
-    else if (tipo == 2)
+    else if (tipo == 2) // Pacientes
     {
-        printf("+-----+--------------------------+-------------+-------------+\n");
-        printf("| ID  | Nome                     | CPF         | Telefone    |\n");
-        printf("+-----+--------------------------+-------------+-------------+\n");
+        printf("+-----+----------------------------------------------------------------------------------------------------------------------------+-------------+-------------+\n");
+        printf("| ID  | Nome                                                                                                                       | CPF         | Telefone    |\n");
+        printf("+-----+----------------------------------------------------------------------------------------------------------------------------+-------------+-------------+\n");
     }
-    else if (tipo == 3)
+    else if (tipo == 3) // Consultas
     {
-        printf("+-----+-----+-----+---------------------+------------+\n");
-        printf("| ID  | Pac | Med | Data/Hora           | Status     |\n");
-        printf("+-----+-----+-----+---------------------+------------+\n");
+        printf("+-----+----------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------+---------------------+------------+\n");
+        printf("| ID  | Paciente                                                                                                                   | Medico                                                                                             | Data/Hora           | Status     |\n");
+        printf("+-----+----------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------+---------------------+------------+\n");
     }
 
     char linha[512];
     fgets(linha, sizeof(linha), arquivo); // Pula o cabeçalho
 
-    time_t t = time(NULL);
-    struct tm tm = *localtime(&t);
-
     while (fgets(linha, sizeof(linha), arquivo))
     {
         int exibir = 1;
-        if (modo && valor)
+        if (modo)
         {
             char linha_copia[512];
             strcpy(linha_copia, linha);
@@ -328,20 +325,16 @@ void exibir_arquivo(const char *nome_arquivo, const char *modo, const char *valo
                 token = strtok(NULL, ",\n");
             }
             exibir = 0;
-            if (strcmp(modo, "paciente") == 0 && strcmp(tokens[1], valor) == 0)
+            if (valor && strcmp(modo, "paciente") == 0 && strcmp(tokens[1], valor) == 0)
                 exibir = 1;
-            else if (strcmp(modo, "medico") == 0 && strcmp(tokens[2], valor) == 0)
+            else if (valor && strcmp(modo, "medico") == 0 && strcmp(tokens[2], valor) == 0)
                 exibir = 1;
-            else if (strcmp(modo, "especialidade") == 0 && strstr(tokens[4], valor))
+            else if (valor && strcmp(modo, "especialidade") == 0 && strstr(tokens[4], valor))
                 exibir = 1;
-            else if (strcmp(modo, "dia") == 0)
-            {
-                int dia, mes, ano;
-                sscanf(tokens[3], "%d/%d/%d", &dia, &mes, &ano);
-                if (dia == tm.tm_mday && mes == tm.tm_mon + 1 && ano == tm.tm_year + 1900)
-                    exibir = 1;
-            }
+            else if (strcmp(modo, "dia") == 0 && validar_dia(tokens[3]))
+                exibir = 1;
         }
+
         if (exibir)
         {
             if (tipo == 1)
@@ -349,32 +342,108 @@ void exibir_arquivo(const char *nome_arquivo, const char *modo, const char *valo
                 int id, crm;
                 char nome[100], especialidade[100], telefone[16];
                 if (sscanf(linha, "%d,%99[^,],%d,%99[^,],%15[^,\n]", &id, nome, &crm, especialidade, telefone) == 5)
-                    printf("| %-3d | %-24s | %-7d | %-24s | %-11s |\n", id, nome, crm, especialidade, telefone);
+                    printf("| %-4d | %-100s | %-7d | %-100s | %-11s |\n", id, nome, crm, especialidade, telefone);
             }
             else if (tipo == 2)
             {
                 int id;
                 char nome[120], cpf[12], telefone[12];
                 if (sscanf(linha, "%d,%119[^,],%11[^,],%11[^\n]", &id, nome, cpf, telefone) == 4)
-                    printf("| %-3d | %-24s | %-11s | %-11s |\n", id, nome, cpf, telefone);
+                    printf("| %-4d | %-120s | %-11s | %-11s |\n", id, nome, cpf, telefone);
             }
             else if (tipo == 3)
             {
                 int id, id_pac, id_med;
                 char data_hora[32], status[16];
                 if (sscanf(linha, "%d,%d,%d,%31[^,],%15[^\n]", &id, &id_pac, &id_med, data_hora, status) == 5)
-                    printf("| %-3d | %-3d | %-3d | %-19s | %-10s |\n", id, id_pac, id_med, data_hora, status);
+                {
+                    char nome_paciente[122] = ""; // 120 + margem
+                    char nome_medico[102] = "";   // 100 + margem
+                    buscar_nome_paciente_por_id(id_pac, nome_paciente, sizeof(nome_paciente));
+                    buscar_nome_medico_por_id(id_med, nome_medico, sizeof(nome_medico));
+                    printf("| %-4d | %-120s | %-100s | %-19s | %-10s |\n",
+                           id, nome_paciente, nome_medico, data_hora, status);
+                }
             }
         }
     }
 
     // Linha final
     if (tipo == 1)
-        printf("+-----+--------------------------+---------+--------------------------+-------------+\n");
+        printf("+-----+----------------------------------------------------------------------------------------------------+---------+----------------------------------------------------------------------------------------------------+-------------+\n");
     else if (tipo == 2)
-        printf("+-----+--------------------------+-------------+-------------+\n");
+        printf("+-----+----------------------------------------------------------------------------------------------------------------------------+-------------+-------------+\n");
     else if (tipo == 3)
-        printf("+-----+-----+-----+---------------------+------------+\n");
+        printf("+-----+----------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------+---------------------+------------+\n");
 
     fclose(arquivo);
+}
+
+void relatorio_contagem_consultas_por_especialidade()
+{
+    const char *especialidades[] = {
+        "CLINICO_GERAL",
+        "PEDIATRA",
+        "CARDIOLOGISTA",
+        "DERMATOLOGISTA",
+        "PSIQUIATRA"};
+    int contagem[5] = {0, 0, 0, 0, 0};
+
+    // Percorre todas as consultas
+    FILE *arq_cons = fopen("data/registro_consultas.csv", "r");
+    if (!arq_cons)
+    {
+        printf("Erro ao abrir o arquivo de consultas.\n");
+        return;
+    }
+    char linha[512];
+    fgets(linha, sizeof(linha), arq_cons); // pula cabeçalho
+
+    while (fgets(linha, sizeof(linha), arq_cons))
+    {
+        int id_consulta, id_paciente, id_medico;
+        char data_hora[32], status[16];
+        if (sscanf(linha, "%d,%d,%d,%31[^,],%15[^\n]", &id_consulta, &id_paciente, &id_medico, data_hora, status) == 5)
+        {
+            // Descobre a especialidade do médico
+            FILE *arq_med = fopen("data/registro_medicos.csv", "r");
+            if (!arq_med)
+                continue;
+            char linha_med[512];
+            fgets(linha_med, sizeof(linha_med), arq_med); // pula cabeçalho
+            while (fgets(linha_med, sizeof(linha_med), arq_med))
+            {
+                int id_med;
+                char nome[100], crm[16], especialidade[100], telefone[16];
+                if (sscanf(linha_med, "%d,%99[^,],%15[^,],%99[^,],%15[^\n]", &id_med, nome, crm, especialidade, telefone) == 5)
+                {
+                    if (id_med == id_medico)
+                    {
+                        // Conta para a especialidade correta
+                        for (int i = 0; i < 5; i++)
+                        {
+                            if (strcasecmp(especialidade, especialidades[i]) == 0)
+                            {
+                                contagem[i]++;
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+            fclose(arq_med);
+        }
+    }
+    fclose(arq_cons);
+
+    // Exibe o relatório
+    printf("===========================\n");
+    printf("Consultas por Especialidade\n");
+    printf("===========================\n");
+    for (int i = 0; i < 5; i++)
+    {
+        printf("%-18s: %d\n", especialidades[i], contagem[i]);
+    }
+    printf("===========================\n");
 }
