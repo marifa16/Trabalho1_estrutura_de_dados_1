@@ -26,8 +26,8 @@ typedef enum
     PEDIATRA,
     CARDIOLOGISTA,
     DERMATOLOGISTA,
-    PSIQUIATRA
-    // ...adicione outras especialidades se necessário
+    PSIQUIATRA,
+    TOTAL_ESPECIALIDADES
 } Especialidade;
 
 // Definição da struct para consultas
@@ -63,6 +63,8 @@ typedef struct
     char telefone[12];
     Horario horarios[9];
 } reg_medico;
+
+const char *especialidade_string(Especialidade especialidade);
 
 // Definição da struct para pacientes
 typedef struct

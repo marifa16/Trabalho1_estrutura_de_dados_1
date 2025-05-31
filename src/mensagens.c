@@ -367,6 +367,13 @@ void msg_41_especialidade_medico()
            "===========================\n");
 }
 
+void msg_42_exiber_medicos_disponiveis()
+{
+    printf("====================\n");
+    printf("Médicos Disponíveis:\n");
+    printf("====================\n");
+}
+
 void clear()
 {
     system("clear || cls");

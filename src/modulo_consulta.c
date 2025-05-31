@@ -38,19 +38,24 @@ Estado tratar_modulo_consulta()
         {
         case 1: // Agendar Consulta
         {
-            int crm_medico, mes;
+            char cpf_paciente[12];
 
-            // Valida o paciente
-            if (!validar_paciente())
+            msg_31_cpf();
+            fgets(cpf_paciente, sizeof(cpf_paciente), stdin);
+            cpf_paciente[strcspn(cpf_paciente, "\n")] = '\0';
+
+            // Verifica se o CPF existe no arquivo de pacientes
+            int linha_paciente = buscar_linha("data/registro_pacientes.csv", 2, cpf_paciente);
+            if (linha_paciente < 0)
             {
-                msg_05_retornando_menu();
-                return ESTADO_MENU_PRINCIPAL; // Retorna ao menu principal se o CPF não for encontrado
+                printf("Paciente com CPF %s não encontrado! Não é possível agendar consulta.\n", cpf_paciente);
+                return ESTADO_MENU_CONSULTA;
             }
 
+            int crm_medico, mes;
+
             // Exibe médicos disponíveis
-            printf("====================\n");
-            printf("Médicos Disponíveis:\n");
-            printf("====================\n");
+            msg_42_exiber_medicos_disponiveis();
             for (int i = 0; i < total_medicos; i++)
             {
                 printf("[%d] - %s (CRM: %d, Especialidade: %s)\n", i + 1, medicos[i].nome, medicos[i].crm, especialidade_string(medicos[i].especialidade_medico));
