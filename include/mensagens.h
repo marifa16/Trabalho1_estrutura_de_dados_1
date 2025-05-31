@@ -2,6 +2,8 @@
 #define MENSAGENS_H
 
 // Declarações das funções de mensagens
+void clear();
+void msg_00_informacoes_programa();
 void msg_01_agendar_consulta();
 void msg_02_opcao_invalida();
 void msg_03_finalizacao();
@@ -38,19 +40,52 @@ void msg_33_boas_vindas();
 void msg_34_gerenciar();
 void msg_35_relatorio();
 void msg_36_especialidade_consulta();
-void mostrar_menu_principal();
-void mostrar_modulo_consulta();
-void mostrar_modulo_paciente();
-void mostrar_modulo_medico();
-void mostrar_modulo_relatorios();
-void msg_00_informacoes_programa();
-void mensagem_encerramento();
-void clear();
 void msg_37_mostrar_modulo_paciente();
 void msg_38_mostrar_modulo_medico();
 void msg_39_mostrar_modulo_relatorios();
 void msg_40_opcoes();
 void msg_41_especialidade_medico();
+<<<<<<< HEAD
 void msg_42_exiber_medicos_disponiveis();
 
+=======
+void msg_42_especialidade_opcoes();
+void msg_43_relatorio_especialidade_inicio();
+void msg_44_relatorio_especialidade_item(const char *especialidade, int qtd);
+void msg_45_relatorio_especialidade_fim();
+void mostrar_menu_principal();
+void mostrar_modulo_consulta();
+void mostrar_modulo_paciente();
+void mostrar_modulo_medico();
+void mostrar_modulo_relatorios();
+void mensagem_encerramento();
+void msg_menu_escolha_opcao();
+void msg_menu_opcao_invalida();
+void msg_digite_cpf_exibir();
+void msg_paciente_nao_encontrado(const char *cpf);
+void msg_erro_abrir_arquivo();
+void msg_cpf_invalido();
+void msg_telefone_invalido();
+void msg_paciente_atualizado();
+void msg_erro_atualizar_paciente();
+void msg_paciente_deletado();
+void msg_erro_deletar_paciente();
+void msg_digite_cpf_atualizar();
+void msg_digite_cpf_deletar();
+void msg_menu_atualizar_info();
+void msg_menu_atualizar_mais();
+void msg_erro_memoria_paciente();
+void msg_consultas_paciente(const char *cpf);
+void msg_consultas_medico(const char *crm);
+void msg_erro_abrir_arquivo_consultas();
+void msg_medico_nao_encontrado(const char *crm);
+void msg_cabecalho_tabela_consultas();
+void msg_linha_tabela_consulta(int id, const char *pac, const char *med, const char *data, const char *status);
+void msg_rodape_tabela_consultas();
+void msg_erro_abrir_arquivo_nome(const char *nome_arquivo);
+void msg_erro_cpf_digitos();
+void msg_erro_cpf_numeros();
+void msg_erro_telefone_digitos();
+void msg_erro_telefone_numeros();
+>>>>>>> 2a3b905c87358954565b014ed6e16a43df50c280
 #endif

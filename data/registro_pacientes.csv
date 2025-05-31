@@ -3,4 +3,8 @@ id_paciente,nome,cpf,telefone
 3,Paciente3,CPF003,11999990003
 5,PacienteAtualizado,CPF999,11999999999
 6,Paciente3,00000000003,11999990003
+<<<<<<< HEAD
 7,Samara,12345678912,12345678912
+=======
+999,PacienteTeste,00000000005,11999990003
+>>>>>>> 2a3b905c87358954565b014ed6e16a43df50c280

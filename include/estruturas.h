@@ -3,6 +3,8 @@
 
 #include <time.h> // Inclui a biblioteca para usar struct tm
 
+#define TOTAL_ESPECIALIDADES 5
+
 typedef enum
 {                          // É uma forma de criar um apelido para um tipo existente.
     ESTADO_MENU_PRINCIPAL, // Estado do menu principal
@@ -26,8 +28,12 @@ typedef enum
     PEDIATRA,
     CARDIOLOGISTA,
     DERMATOLOGISTA,
+<<<<<<< HEAD
     PSIQUIATRA,
     TOTAL_ESPECIALIDADES
+=======
+    PSIQUIATRA
+>>>>>>> 2a3b905c87358954565b014ed6e16a43df50c280
 } Especialidade;
 
 // Definição da struct para consultas

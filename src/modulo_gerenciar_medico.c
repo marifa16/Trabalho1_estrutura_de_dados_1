@@ -47,6 +47,7 @@ Estado tratar_modulo_medico()
         {
             char nome_medico[100];              // Variável para armazenar o nome do médico
             int crm;                            // Variável para armazenar o CRM do médico
+            int telefone_medico;                // Variável para armazenar o telefone do médico
             Especialidade especialidade_medico; // Variável para controlar o loop de saída
             char telefone_str[15];              // Variável para armazenar o telefone do médico como string
 
@@ -54,6 +55,7 @@ Estado tratar_modulo_medico()
             do
             {
                 msg_23_nome_medico();
+                limpar_buffer();
                 fgets(nome_medico, sizeof(nome_medico), stdin); // Lê o nome do méddico como string
                 nome_medico[strcspn(nome_medico, "\n")] = '\0'; // Remove o caractere de nova linha
 
@@ -167,6 +169,7 @@ Estado tratar_modulo_medico()
             do
             {
                 msg_14_informar_telefone();
+                char telefone_str[15];                            // Variável que armazena o telefone como string
                 fgets(telefone_str, sizeof(telefone_str), stdin); // Lê o telefone como string
                 telefone_str[strcspn(telefone_str, "\n")] = '\0'; // Remove o caractere de linha
 
@@ -195,6 +198,7 @@ Estado tratar_modulo_medico()
                     continue; // Volta para solicitar o telefone
                 }
 
+                telefone_medico = atoi(telefone_str);                   // Converte o telefone para inteiro
                 printf("O telefone informado foi: %s\n", telefone_str); // Exibe o telefone do médico
 
                 // Função Validar
@@ -253,7 +257,20 @@ Estado tratar_modulo_medico()
 
                     if (opcao == 1) // SIM
                     {
-                        break; // Sai do loop
+                        medicos = realloc(medicos, (total_medicos + 1) * sizeof(reg_medico));
+                        if (medicos == NULL) // Verifica se a realocação foi sucecedida
+                        {
+                            printf("Erro ao alocar memória para o médico.\n");
+                            return (1);
+                        }
+                        strcpy(medicos[total_medicos].nome, nome_medico);
+                        medicos[total_medicos].crm = crm;
+                        medicos[total_medicos].telefone_medico = telefone_medico;
+                        medicos[total_medicos].especialidade_medico = especialidade_medico;
+                        total_medicos++; // Incrementa o total de médicos
+
+                        msg_29_sucesso_cadastro_medico();
+                        return 1; // Retorna 1 para indicar que o médico foi cadastrado com sucesso
                     }
                     else if (opcao == 2) // Não
                     {
@@ -539,9 +556,9 @@ const char *especialidade_string(Especialidade especialidade)
     {
     case CLINICO_GERAL:
         return "Clínico Geral";
-    case PEDIATRA:
+    case PEDRIATRA:
         return "Pedriatra";
-    case CARDIOLOGISTA:
+    case CARDIOLOGIDTA:
         return "Cardiologista";
     case DERMATOLOGISTA:
         return "Dermatologista";

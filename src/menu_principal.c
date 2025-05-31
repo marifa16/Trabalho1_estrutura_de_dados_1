@@ -1,15 +1,14 @@
 #include <stdio.h>
 #include "../include/estruturas.h"
 #include "../include/mensagens.h"
+#include "../include/auxiliar.h"
 
 Estado tratar_menu_principal()
 {
-    int escolha = 0;
+    msg_33_boas_vindas(); // exibe o menu principal
+    int escolha = ler_opcao_menu(1, 5); // trata a entrada do usuário para um valor válido
 
-    msg_33_boas_vindas();  // exibe o menu principal
-    scanf("%d", &escolha); // lê a entrada do usuário
-
-    switch (escolha)
+    switch (escolha) // depende da escolha do usuário é levado a um novo estado
     {
     case 1: // Módulo Consultas
         return ESTADO_MENU_CONSULTA;

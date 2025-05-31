@@ -8,7 +8,7 @@ void msg_00_informacoes_programa()
     printf("Desenvolvido por:\n"
            "ANDERSON CARLOS DA SILVA MORAIS\n"
            "MARILIA FONSECA ANDRADE\n");
-    printf("Versão 0.300.151 Alfa\n");
+    printf("Versão 0.7\n");
 }
 
 void msg_01_agendar_consulta()
@@ -307,6 +307,7 @@ void msg_36_especialidade_consulta()
 {
     printf("===========================\n"
            "Qual especialidade deseja consultar:\n\n"
+
            "===========================\n");
 }
 
@@ -343,12 +344,13 @@ void msg_39_mostrar_modulo_relatorios()
     printf("===========================\n"
            "    Módulo Relatórios      \n"
            "===========================\n"
-           "[1] - Criar\n"
-           "[2] - Exibir\n"
-           "[3] - Atualizar\n"
-           "[4] - Deletar\n"
-           "[5] - Voltar\n"
-           "[6] - Sair\n"
+           "[1] - Consultas por paciente informado\n"
+           "[2] - Consultas por médico informado\n"
+           "[3] - Consulta por especialista\n"
+           "[4] - Consultas do dia atual\n"
+           "[5] - Relatório de consultas por especialidade\n"
+           "[6] - Voltar\n"
+           "[7] - Sair\n"
            "===========================\n");
 }
 
@@ -377,4 +379,172 @@ void msg_42_exiber_medicos_disponiveis()
 void clear()
 {
     system("clear || cls");
+}
+
+void msg_42_especialidade_opcoes()
+{
+    printf("===========================\n"
+           "Escolha a especialidade:\n"
+           "[1] - CLINICO_GERAL\n"
+           "[2] - PEDIATRA\n"
+           "[3] - CARDIOLOGISTA\n"
+           "[4] - DERMATOLOGISTA\n"
+           "[5] - PSIQUIATRA\n"
+           "[0] - Voltar\n"
+           "===========================\n");
+}
+
+void msg_43_relatorio_especialidade_inicio()
+{
+    printf("===========================\n");
+    printf("Consultas por Especialidade\n");
+    printf("===========================\n");
+}
+
+void msg_44_relatorio_especialidade_item(const char *especialidade, int qtd)
+{
+    printf("%-18s: %d\n", especialidade, qtd);
+}
+
+void msg_45_relatorio_especialidade_fim()
+{
+    printf("===========================\n");
+}
+
+void msg_menu_escolha_opcao()
+{
+    printf("Escolha uma opção: ");
+}
+
+void msg_menu_opcao_invalida()
+{
+    printf("===========================\n");
+    printf("Opção inválida!\n");
+    printf("===========================\n");
+}
+
+void msg_digite_cpf_exibir()
+{
+    printf("Digite o CPF do paciente para exibir: ");
+}
+
+void msg_paciente_nao_encontrado(const char *cpf)
+{
+    printf("Paciente com CPF %s não encontrado!\n", cpf);
+}
+
+void msg_erro_abrir_arquivo()
+{
+    printf("Erro ao abrir o arquivo!\n");
+}
+
+void msg_cpf_invalido()
+{
+    printf("O CPF deve conter exatamente 11 dígitos.\n");
+}
+
+void msg_telefone_invalido()
+{
+    printf("O telefone deve conter exatamente 11 dígitos.\n");
+}
+
+void msg_paciente_atualizado()
+{
+    printf("Paciente atualizado com sucesso!\n");
+}
+
+void msg_erro_atualizar_paciente()
+{
+    printf("Erro ao atualizar paciente!\n");
+}
+
+void msg_paciente_deletado()
+{
+    printf("Paciente deletado com sucesso!\n");
+}
+
+void msg_erro_deletar_paciente()
+{
+    printf("Erro ao deletar paciente!\n");
+}
+
+void msg_digite_cpf_atualizar()
+{
+    printf("Digite o CPF do paciente para atualizar: ");
+}
+
+void msg_digite_cpf_deletar()
+{
+    printf("Digite o CPF do paciente para deletar: ");
+}
+
+void msg_menu_atualizar_info()
+{
+    printf("\nQual informação deseja atualizar?\n1 - Nome\n2 - CPF\n3 - Telefone\nEscolha: ");
+}
+
+void msg_menu_atualizar_mais()
+{
+    printf("Deseja atualizar mais alguma informação? (1-Sim, 0-Não): ");
+}
+
+void msg_erro_memoria_paciente()
+{
+    printf("Erro ao alocar memória para o paciente.\n");
+}
+
+void msg_consultas_paciente(const char *cpf)
+{
+    printf("Consultas do paciente (CPF: %s):\n", cpf);
+}
+void msg_consultas_medico(const char *crm)
+{
+    printf("Consultas do médico (CRM: %s):\n", crm);
+}
+void msg_erro_abrir_arquivo_consultas()
+{
+    printf("Erro ao abrir o arquivo de consultas.\n");
+}
+void msg_medico_nao_encontrado(const char *crm)
+{
+    printf("Médico com CRM %s não encontrado!\n", crm);
+}
+void msg_cabecalho_tabela_consultas()
+{
+    printf("+-----+---------------------+---------------------+---------------------+------------+\n");
+    printf("| ID  | Paciente            | Medico              | Data/Hora           | Status     |\n");
+    printf("+-----+---------------------+---------------------+---------------------+------------+\n");
+}
+void msg_linha_tabela_consulta(int id, const char *pac, const char *med, const char *data, const char *status)
+{
+    printf("| %-4d | %-19s | %-19s | %-19s | %-10s |\n", id, pac, med, data, status);
+}
+void msg_rodape_tabela_consultas()
+{
+    printf("+-----+---------------------+---------------------+---------------------+------------+\n");
+}
+
+void msg_erro_abrir_arquivo_nome(const char *nome_arquivo)
+{
+    printf("Erro ao abrir o arquivo '%s'.\n", nome_arquivo);
+}
+
+void msg_erro_cpf_digitos()
+{
+    printf("O CPF deve conter exatamente 11 dígitos.\n");
+}
+
+void msg_erro_cpf_numeros()
+{
+    printf("O CPF deve conter apenas números.\n");
+}
+
+void msg_erro_telefone_digitos()
+{
+    printf("O telefone deve conter exatamente 11 dígitos.\n");
+}
+
+void msg_erro_telefone_numeros()
+{
+    printf("O telefone deve conter apenas números.\n");
 }

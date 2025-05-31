@@ -11,7 +11,7 @@ extern reg_medico *medicos;
 extern int total_medicos;
 
 // Declaração da função espcialidade_string
-const char *especialidade_sttring(Especialidade especialidade);
+const char *especialidade_string(Especialidade especialidade);
 
 int validar_paciente()
 {

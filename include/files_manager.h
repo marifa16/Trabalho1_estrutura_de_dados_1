@@ -18,5 +18,6 @@ int del_row(const char *nome_arquivo, int row);
 
 void exibir_arquivo(const char *nome_arquivo, const char *modo, const char *valor);
 
+void relatorio_contagem_consultas_por_especialidade();
 
 #endif

@@ -14,6 +14,8 @@
 reg_consulta *consultas = NULL; // Ponteiro para vetor consultas
 int total_consultas = 0;        // Contador
 
+const char *especialidade_string(Especialidade especialidade);
+
 Estado tratar_modulo_consulta()
 {
     Estado estado_atual = ESTADO_MENU_CONSULTA; // Inicializa o estado como ESTADO_MENU_CONSULTA
