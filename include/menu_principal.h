@@ -1,9 +1,8 @@
-#ifndef MENU_PRINCIPAL_H
-#define MENU_PRINCIPAL_H
+#ifndef MENU_PRINCIPAL_H // Se MENU_PRINCIPAL_H ainda não foi definido
+#define MENU_PRINCIPAL_H // defina MENU_PRINCIPAL_H
 
-#include "estruturas.h"
+#include "estruturas.h" // para o retorno do tipo Estad ser válido
 
-// Declaração da função
-Estado tratar_menu_principal();
+Estado tratar_menu_principal(); // Declaração da função
 
-#endif
+#endif // Fim da proteção

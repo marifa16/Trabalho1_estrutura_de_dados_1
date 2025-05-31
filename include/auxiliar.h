@@ -7,8 +7,6 @@
 
 int validar_nome_paciente(char *nome_paciente, size_t tamanho);
 
-int validar_opcao_usuario();
-
 int validar_cpf(char *cpf, size_t tamanho);
 
 int validar_telefone(char *telefone, size_t tamanho);
@@ -38,4 +36,9 @@ void buscar_nome_paciente_por_id(int id_paciente, char *nome, size_t tamanho);
 int validar_dia(const char *data_hora);
 
 int get_medico_especial(int id_medico, const char *especialidade);
+
+int ler_opcao_menu(int min, int max);
+
+void atualizar_paciente(const char *file_paciente, char *cpf_paciente, char *valores[4]);
+
 #endif

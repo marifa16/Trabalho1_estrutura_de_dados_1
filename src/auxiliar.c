@@ -1,6 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <time.h>
 #include <strings.h> // Para strcasecmp
 #include "../include/estruturas.h"
@@ -15,7 +13,48 @@ void limpar_buffer()
         ; // Consome todos os caracteres restantes no buffer
 }
 
-int validar_nome_paciente(char *nome_paciente, size_t tamanho)
+int ler_opcao_menu(int min, int max)
+{
+    char entrada[16];
+    int valor, valido = 0;
+
+    do
+    {
+        msg_menu_escolha_opcao();
+        limpar_buffer();
+        if (!fgets(entrada, sizeof(entrada), stdin))
+        {
+            msg_menu_opcao_invalida();
+            continue;
+        }
+        entrada[strcspn(entrada, "\n")] = 0;
+        int apenas_digitos = 1;
+        for (size_t i = 0; entrada[i]; i++)
+        {
+            if (!isdigit((unsigned char)entrada[i]))
+            {
+                apenas_digitos = 0;
+                break;
+            }
+        }
+        if (!apenas_digitos || strlen(entrada) == 0)
+        {
+            msg_menu_opcao_invalida();
+            continue;
+        }
+        valor = atoi(entrada);
+        if (valor < min || valor > max)
+        {
+            msg_menu_opcao_invalida();
+            continue;
+        }
+        valido = 1;
+    } while (!valido);
+
+    return valor;
+}
+
+int validar_nome_paciente(char *nome_paciente, size_t tamanho) // podia ter sido padronizado em uma função só, mas já tá ai pronta então não seguimos
 {
     do
     {
@@ -33,43 +72,7 @@ int validar_nome_paciente(char *nome_paciente, size_t tamanho)
     } while (1);
 }
 
-int validar_opcao_usuario()
-{
-    char opcao[10];
-
-    do
-    {
-        // Lê a opção do usuário
-        // limpar_buffer(); // Limpa o buffer antes de capturar a entrada
-        msg_40_opcoes();
-
-        if (fgets(opcao, sizeof(opcao), stdin) == NULL)
-        {
-            msg_02_opcao_invalida();
-            continue;
-        }
-        opcao[strcspn(opcao, "\n")] = '\0'; // Remove o caractere de nova linha
-
-        if (strcmp(opcao, "1") == 0) // Se a opção for "SIM"
-        {
-            return 1; // Confirmação
-        }
-        else if (strcmp(opcao, "2") == 0) // Se a opção for "NÃO"
-        {
-            return 2; // Rejeição
-        }
-        else if (strcmp(opcao, "3") == 0) // Se a opção for "SAIR"
-        {
-            return 3; // Sair
-        }
-        else // Se a entrada for inválida
-        {
-            msg_02_opcao_invalida();
-        }
-    } while (1);
-}
-
-int validar_cpf(char *cpf, size_t tamanho)
+int validar_cpf(char *cpf, size_t tamanho) // podia ter sido padronizado em uma função só, mas já tá ai pronta então não seguimos
 {
     do
     {
@@ -82,7 +85,7 @@ int validar_cpf(char *cpf, size_t tamanho)
         if (strlen(cpf) != 11)
         {
             msg_02_opcao_invalida();
-            printf("O CPF deve conter exatamente 11 dígitos.\n");
+            msg_erro_cpf_digitos(); // Substitui printf
             continue;
         }
 
@@ -100,7 +103,7 @@ int validar_cpf(char *cpf, size_t tamanho)
         if (!valido)
         {
             msg_02_opcao_invalida();
-            printf("O CPF deve conter apenas números.\n");
+            msg_erro_cpf_numeros(); // Substitui printf
             continue;
         }
 
@@ -108,7 +111,7 @@ int validar_cpf(char *cpf, size_t tamanho)
     } while (1);
 }
 
-int validar_telefone(char *telefone, size_t tamanho)
+int validar_telefone(char *telefone, size_t tamanho) // podia ter sido padronizado em uma função só, mas já tá ai pronta então não seguimos
 {
     do
     {
@@ -121,7 +124,7 @@ int validar_telefone(char *telefone, size_t tamanho)
         if (strlen(telefone) != 11)
         {
             msg_02_opcao_invalida();
-            printf("O telefone deve conter exatamente 11 dígitos.\n");
+            msg_erro_telefone_digitos(); // Substitui printf
             continue;
         }
 
@@ -139,7 +142,7 @@ int validar_telefone(char *telefone, size_t tamanho)
         if (!valido)
         {
             msg_02_opcao_invalida();
-            printf("O telefone deve conter apenas números.\n");
+            msg_erro_telefone_numeros(); // Substitui printf
             continue;
         }
 
@@ -231,30 +234,6 @@ int get_id(const char *nome_arquivo, int select_col, const char *valor_busca)
     }
     fclose(arquivo);
     return -1; // Não encontrado
-}
-
-void listar_medicos(const char *nome_arquivo)
-{
-    FILE *arquivo = fopen(nome_arquivo, "r");
-    if (!arquivo)
-    {
-        printf("Erro ao abrir o arquivo '%s'.\n", nome_arquivo);
-        return;
-    }
-
-    char linha[512];
-    int primeira_linha = 1;
-    while (fgets(linha, sizeof(linha), arquivo))
-    {
-        if (primeira_linha)
-        {
-            printf("%s", linha); // Cabeçalho
-            primeira_linha = 0;
-            continue;
-        }
-        printf("%s", linha);
-    }
-    fclose(arquivo);
 }
 
 // Retorna o maior id da primeira coluna do arquivo CSV
@@ -429,4 +408,97 @@ int get_medico_especial(int id_medico, const char *especialidade)
     }
     fclose(arq);
     return 0;
+}
+
+// Função auxiliar para atualizar paciente
+void atualizar_paciente(const char *file_paciente, char *cpf_paciente, char *valores[4])
+{
+    int linha = buscar_linha(file_paciente, 2, cpf_paciente);
+    if (linha < 0)
+    {
+        msg_paciente_nao_encontrado(cpf_paciente);
+        return;
+    }
+
+    FILE *arquivo = fopen(file_paciente, "r");
+    if (!arquivo)
+    {
+        msg_erro_abrir_arquivo();
+        return;
+    }
+    char linha_csv[512];
+    fgets(linha_csv, sizeof(linha_csv), arquivo);
+    for (int i = 0; i <= linha; i++)
+        fgets(linha_csv, sizeof(linha_csv), arquivo);
+    fclose(arquivo);
+
+    char *tokens[4];
+    char linha_copia[512];
+    strcpy(linha_copia, linha_csv);
+    char *token = strtok(linha_copia, ",\n");
+    int i = 0;
+    while (token && i < 4)
+    {
+        tokens[i++] = token;
+        token = strtok(NULL, ",\n");
+    }
+
+    int continuar = 1;
+    while (continuar)
+    {
+        msg_menu_atualizar_info();
+        int opcao = ler_opcao_menu(1, 3);
+
+        switch (opcao)
+        {
+        case 1:
+            validar_nome_paciente(tokens[1], sizeof(linha_copia) - 1);
+            break;
+        case 2:
+            validar_cpf(tokens[2], sizeof(linha_copia) - 1);
+            break;
+        case 3:
+            validar_telefone(tokens[3], sizeof(linha_copia) - 1);
+            break;
+        }
+
+        msg_menu_atualizar_mais();
+        int resp = ler_opcao_menu(0, 1); // 0-Não, 1-Sim
+        if (resp == 0)
+            continuar = 0;
+    }
+
+    valores[0] = tokens[0];
+    valores[1] = tokens[1];
+    valores[2] = tokens[2];
+    valores[3] = tokens[3];
+
+    if (att_row(file_paciente, linha, 4, valores))
+        msg_paciente_atualizado();
+    else
+        msg_erro_atualizar_paciente();
+}
+
+void listar_medicos(const char *nome_arquivo)
+{
+    FILE *arquivo = fopen(nome_arquivo, "r");
+    if (!arquivo)
+    {
+        msg_erro_abrir_arquivo_nome(nome_arquivo); // Substitui printf
+        return;
+    }
+
+    char linha[512];
+    int primeira_linha = 1;
+    while (fgets(linha, sizeof(linha), arquivo))
+    {
+        if (primeira_linha)
+        {
+            printf("%s", linha); // Cabeçalho
+            primeira_linha = 0;
+            continue;
+        }
+        printf("%s", linha);
+    }
+    fclose(arquivo);
 }

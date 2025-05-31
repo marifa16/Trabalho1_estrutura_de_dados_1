@@ -438,12 +438,10 @@ void relatorio_contagem_consultas_por_especialidade()
     fclose(arq_cons);
 
     // Exibe o relatório
-    printf("===========================\n");
-    printf("Consultas por Especialidade\n");
-    printf("===========================\n");
+    msg_relatorio_especialidade_inicio();
     for (int i = 0; i < 5; i++)
     {
-        printf("%-18s: %d\n", especialidades[i], contagem[i]);
+        msg_relatorio_especialidade_item(especialidades[i], contagem[i]);
     }
-    printf("===========================\n");
+    msg_relatorio_especialidade_fim();
 }
