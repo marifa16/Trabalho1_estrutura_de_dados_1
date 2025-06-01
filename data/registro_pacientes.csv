@@ -1,10 +1,25 @@
 id_paciente,nome,cpf,telefone
-2,PacienteAtualizado,CPF999,11999999999
-3,Paciente3,CPF003,11999990003
-5,PacienteAtualizado,CPF999,11999999999
-6,Paciente3,00000000003,11999990003
-<<<<<<< HEAD
-7,Samara,12345678912,12345678912
-=======
-999,PacienteTeste,00000000005,11999990003
->>>>>>> 2a3b905c87358954565b014ed6e16a43df50c280
+2,PacienteAtualizado,00000000001,11999999999
+3,Paciente3,00000000002,11999990003
+5,PacienteAtualizado,00000000003,11999999999
+6,Paciente3,00000000004,11999990003
+
+// Escolher médico
+int escolha_medico = 0;
+do
+{
+    msg_06_escolher_medico();
+    limpar_buffer(); // <-- ADICIONE ESTA LINHA
+    char escolha_medico_str[10];
+    fgets(escolha_medico_str, sizeof(escolha_medico_str), stdin);
+    escolha_medico_str[strcspn(escolha_medico_str, "\n")] = '\0';
+
+    // Valida se é um número e se está no intervalo de médicos cadastrados
+    if (sscanf(escolha_medico_str, "%d", &escolha_medico) != 1 ||
+        escolha_medico < 1 || escolha_medico > total_medicos)
+    {
+        msg_02_opcao_invalida();
+        continue;
+    }
+    break;
+} while (1);

@@ -80,7 +80,9 @@ Estado tratar_modulo_consulta()
             do
             {
                 msg_06_escolher_medico();
+                printf("[0] - Sair\n");
                 char escolha_medico_str[10];
+                limpar_buffer();
                 fgets(escolha_medico_str, sizeof(escolha_medico_str), stdin);
                 escolha_medico_str[strcspn(escolha_medico_str, "\n")] = '\0';
 
@@ -89,10 +91,15 @@ Estado tratar_modulo_consulta()
 
                 // Valida se é um número e se está no intervalo de médicos cadastrados
                 if (sscanf(escolha_medico_str, "%d", &escolha_medico) != 1 ||
-                    escolha_medico < 1 || escolha_medico > total_medicos)
+                    escolha_medico < 0 || escolha_medico > total_medicos)
                 {
                     msg_02_opcao_invalida();
                     continue;
+                }
+                if (escolha_medico == 0)
+                {
+                    msg_05_retornando_menu();
+                    return estado_atual; // Ou outro fluxo para sair do agendamento
                 }
                 break;
             } while (1);
