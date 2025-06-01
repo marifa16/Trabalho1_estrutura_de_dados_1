@@ -51,20 +51,21 @@ int validar_paciente()
 int validar_medico()
 {
     // Implementação validar médico
-    int crm;
+    char crm[16];
     char opcao[10];
 
     msg_30_crm();
-    scanf("%d", &crm); // Lê a o CRM do usuário
+    fgets(crm, sizeof(crm), stdin); // Lê a o CRM do usuário como string
+    crm[strcspn(crm, "\n")] = '\0'; // Remove o caractere de nova linha
 
     for (int i = 0; i < total_medicos; i++) // Percorre o vetor médico
     {
-        if (medicos[i].crm == crm) // Seo CRM do médico cadastraddo for igual ao CRM informado
+        if (strcmp(medicos[i].crm, crm) == 0) // Seo CRM do médico cadastraddo for igual ao CRM informado
         {
             printf("=====================\n");
             printf("Médico cadastrado.\n");                          // Exibe mensagem de sucesso
             printf("Nome: %s\n", medicos[i].nome);                   // Exibe o nome do médico
-            printf("CRM: %d\n", medicos[i].crm);                     // Exibe o CRM do médico
+            printf("CRM: %s\n", medicos[i].crm);                     // Exibe o CRM do médico
             printf("Especialidade: %s\n", medicos[i].especialidade); // Exibe a especialidade do médico
             printf("Telefone: %s\n", medicos[i].telefone);           // Exibe o telefone do médico
             printf("=====================\n");

@@ -8,9 +8,11 @@
 #include "../include/auxiliar.h"
 #include <locale.h>
 
-// Cria um arquivo CSV com o cabeçalho adequado se ele não existir
+// Cria um arquivo CSV com o cabeï¿½alho adequado se ele nï¿½o existir
 void criar_arquivo_csv(const char *nome_arquivo)
 {
+    setlocale(LC_ALL, "pt_BR.UTF-8"); // Configura o locale para portuguï¿½s do Brasil com suporte a UTF-8
+
     struct stat buffer;
 
     int arquivo_status = (stat(nome_arquivo, &buffer) == 0);
@@ -41,16 +43,16 @@ void criar_arquivo_csv(const char *nome_arquivo)
     }
 }
 
-// Inicializa todos os arquivos CSV necessários
+// Inicializa todos os arquivos CSV necessï¿½rios
 void inicializar_arquivos_csv()
 {
     criar_arquivo_csv("data/registro_consultas.csv");
     criar_arquivo_csv("data/registro_pacientes.csv");
     criar_arquivo_csv("data/registro_medicos.csv");
-    printf("\nInicialização concluída\n");
+    printf("\nInicializaÃ§Ã£o Concluida\n");
 }
 
-// Adiciona uma nova linha ao CSV, gerando um novo id único
+// Adiciona uma nova linha ao CSV, gerando um novo id ï¿½nico
 int add_row(const char *nome_arquivo, int select_col, char *valores[])
 {
     int novo_id = get_maior_id(nome_arquivo) + 1; // Busca o maior id e incrementa
@@ -63,7 +65,7 @@ int add_row(const char *nome_arquivo, int select_col, char *valores[])
     }
 
     fprintf(arquivo, "%d", novo_id);         // Escreve o novo id
-    for (int i = 0; i < select_col - 1; i++) // -1 pois já escrevemos o id
+    for (int i = 0; i < select_col - 1; i++) // -1 pois jï¿½ escrevemos o id
     {                                        // Escreve os demais campos
         fprintf(arquivo, ",%s", valores[i]);
     }
@@ -92,28 +94,18 @@ void read_row(const char *nome_arquivo, int id)
         tipo = 3;
 
     char linha[512];
-    fgets(linha, sizeof(linha), arquivo); // Cabeçalho
+    fgets(linha, sizeof(linha), arquivo); // Cabeï¿½alho
 
     while (fgets(linha, sizeof(linha), arquivo))
     {
         if (tipo == 1)
         {
-            int id_lido, crm;
-            char nome[100], especialidade[100], telefone[16];
-            if (sscanf(linha, "%d,%99[^,],%d,%99[^,],%15[^,\n]", &id_lido, nome, &crm, especialidade, telefone) == 5)
+            int id_lido;
+            char nome[100], crm[16], especialidade[100], telefone[16];
+            if (sscanf(linha, "%d,%99[^,],%15[^,],%99[^,],%15[^,\n]", &id_lido, nome, crm, especialidade, telefone) == 5)
             {
-                if (id_lido == id)
-                {
-                    printf("========================================\n");
-                    printf("ID           : %d\n", id_lido);
-                    printf("Nome         : %s\n", nome);
-                    printf("CRM          : %d\n", crm);
-                    printf("Especialidade: %s\n", especialidade);
-                    printf("Telefone     : %s\n", telefone);
-                    printf("========================================\n");
-                    fclose(arquivo);
-                    return;
-                }
+                printf("CRM          : %s\n", crm);
+                printf("Telefone     : %s\n", telefone);
             }
         }
         else if (tipo == 2)
@@ -156,7 +148,7 @@ void read_row(const char *nome_arquivo, int id)
             }
         }
     }
-    printf("Registro não encontrado.\n");
+    printf("Registro nï¿½o encontrado.\n");
     fclose(arquivo);
 }
 
@@ -174,16 +166,16 @@ int att_row(const char *nome_arquivo, int row, int num_colunas, char *valores[])
     if (!temp)
     {
         fclose(arquivo);
-        printf("Erro ao criar arquivo temporário.\n");
+        printf("Erro ao criar arquivo temporï¿½rio.\n");
         return 0;
     }
 
     char linha[512];
-    int linha_atual = -1; // garante que a contagem das linhas de dados comece em 0, ignorando o cabeçalho.
-    // atualizar ou deletar a "linha 0" (primeira linha de dados), ela será corretamente identificada.
-    int atualizou = 0; // a função retorna atualizou para indicar sucesso (1) ou falha (0).
+    int linha_atual = -1; // garante que a contagem das linhas de dados comece em 0, ignorando o cabeï¿½alho.
+    // atualizar ou deletar a "linha 0" (primeira linha de dados), ela serï¿½ corretamente identificada.
+    int atualizou = 0; // a funï¿½ï¿½o retorna atualizou para indicar sucesso (1) ou falha (0).
 
-    // Copia o cabeçalho
+    // Copia o cabeï¿½alho
     if (fgets(linha, sizeof(linha), arquivo))
     {
         fputs(linha, temp);
@@ -213,14 +205,14 @@ int att_row(const char *nome_arquivo, int row, int num_colunas, char *valores[])
     fclose(arquivo);
     fclose(temp);
 
-    // Substitui o arquivo original pelo temporário
+    // Substitui o arquivo original pelo temporï¿½rio
     remove(nome_arquivo);
     rename("temp.csv", nome_arquivo);
 
     return atualizou;
 }
 
-// Remove a linha 'row' (começando em 0, sem contar o cabeçalho) do arquivo CSV
+// Remove a linha 'row' (comeï¿½ando em 0, sem contar o cabeï¿½alho) do arquivo CSV
 int del_row(const char *nome_arquivo, int row)
 {
     FILE *arquivo = fopen(nome_arquivo, "r");
@@ -234,7 +226,7 @@ int del_row(const char *nome_arquivo, int row)
     if (!temp)
     {
         fclose(arquivo);
-        printf("Erro ao criar arquivo temporário.\n");
+        printf("Erro ao criar arquivo temporï¿½rio.\n");
         return 0;
     }
 
@@ -242,13 +234,13 @@ int del_row(const char *nome_arquivo, int row)
     int linha_atual = -1;
     int deletou = 0;
 
-    // Copia o cabeçalho
+    // Copia o cabeï¿½alho
     if (fgets(linha, sizeof(linha), arquivo))
     {
         fputs(linha, temp);
     }
 
-    // Copia as linhas, pulando a que será deletada
+    // Copia as linhas, pulando a que serï¿½ deletada
     while (fgets(linha, sizeof(linha), arquivo))
     {
         linha_atual++;
@@ -286,8 +278,8 @@ void exibir_arquivo(const char *nome_arquivo, const char *modo, const char *valo
     else if (strstr(nome_arquivo, "consulta"))
         tipo = 3;
 
-    // Cabeçalhos padronizados
-    if (tipo == 1) // Médicos
+    // Cabeï¿½alhos padronizados
+    if (tipo == 1) // Mï¿½dicos
     {
         printf("+-----+----------------------------------------------------------------------------------------------------+---------+----------------------------------------------------------------------------------------------------+-------------+\n");
         printf("| ID  | Nome                                                                                               | CRM     | Especialidade                                                                                      | Telefone    |\n");
@@ -307,7 +299,7 @@ void exibir_arquivo(const char *nome_arquivo, const char *modo, const char *valo
     }
 
     char linha[512];
-    fgets(linha, sizeof(linha), arquivo); // Pula o cabeçalho
+    fgets(linha, sizeof(linha), arquivo); // Pula o cabeï¿½alho
 
     while (fgets(linha, sizeof(linha), arquivo))
     {
@@ -339,10 +331,10 @@ void exibir_arquivo(const char *nome_arquivo, const char *modo, const char *valo
         {
             if (tipo == 1)
             {
-                int id, crm;
-                char nome[100], especialidade[100], telefone[16];
-                if (sscanf(linha, "%d,%99[^,],%d,%99[^,],%15[^,\n]", &id, nome, &crm, especialidade, telefone) == 5)
-                    printf("| %-4d | %-100s | %-7d | %-100s | %-11s |\n", id, nome, crm, especialidade, telefone);
+                int id;
+                char nome[100], crm[16], especialidade[100], telefone[16];
+                if (sscanf(linha, "%d,%99[^,],%15[^,],%99[^,],%15[^,\n]", &id, nome, crm, especialidade, telefone) == 5)
+                    printf("| %-3d | %-24s | %-7s | %-24s | %-11s |\n", id, nome, crm, especialidade, telefone);
             }
             else if (tipo == 2)
             {
@@ -397,7 +389,7 @@ void relatorio_contagem_consultas_por_especialidade()
         return;
     }
     char linha[512];
-    fgets(linha, sizeof(linha), arq_cons); // pula cabeçalho
+    fgets(linha, sizeof(linha), arq_cons); // pula cabeï¿½alho
 
     while (fgets(linha, sizeof(linha), arq_cons))
     {
@@ -405,12 +397,12 @@ void relatorio_contagem_consultas_por_especialidade()
         char data_hora[32], status[16];
         if (sscanf(linha, "%d,%d,%d,%31[^,],%15[^\n]", &id_consulta, &id_paciente, &id_medico, data_hora, status) == 5)
         {
-            // Descobre a especialidade do médico
+            // Descobre a especialidade do mï¿½dico
             FILE *arq_med = fopen("data/registro_medicos.csv", "r");
             if (!arq_med)
                 continue;
             char linha_med[512];
-            fgets(linha_med, sizeof(linha_med), arq_med); // pula cabeçalho
+            fgets(linha_med, sizeof(linha_med), arq_med); // pula cabeï¿½alho
             while (fgets(linha_med, sizeof(linha_med), arq_med))
             {
                 int id_med;
@@ -437,11 +429,14 @@ void relatorio_contagem_consultas_por_especialidade()
     }
     fclose(arq_cons);
 
-    // Exibe o relatório
-    msg_relatorio_especialidade_inicio();
+    // Exibe o relatï¿½rio
+    printf("\nRelatï¿½rio de Consultas por Especialidade\n");
+    printf("+-------------------+---------------------+\n");
+    printf("| Especialidade     | Quantidade de Consultas |\n");
+    printf("+-------------------+---------------------+\n");
     for (int i = 0; i < 5; i++)
     {
-        msg_relatorio_especialidade_item(especialidades[i], contagem[i]);
+        printf("| %-17s | %-20d |\n", especialidades[i], contagem[i]);
     }
-    msg_relatorio_especialidade_fim();
+    printf("+-------------------+---------------------+\n");
 }

@@ -9,6 +9,9 @@
 #include "../include/menu_principal.h"            // Inclui o cabeçalho do menu principal
 #include "../include/files_manager.h"             // Inclui o cabeçalho do arquivo de gerenciamento de arquivos
 
+reg_paciente *pacientes = NULL;
+int total_pacientes = 0;
+
 int main()
 {
     setlocale(LC_ALL, "pt_BR.UTF-8");            // Configura o locale para português do Brasil com suporte a UTF-8
@@ -40,7 +43,7 @@ int main()
             estado_atual = tratar_modulo_relatorios(); // lógica do módulo relatorios
             break;
         default:
-            estado_atual = ESTADO_MENU_PRINCIPAL;  // Permanece no módulo atual
+            estado_atual = ESTADO_MENU_PRINCIPAL; // Permanece no módulo atual
         }
     }
 

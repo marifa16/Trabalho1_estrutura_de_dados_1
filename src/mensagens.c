@@ -394,19 +394,19 @@ void msg_42_especialidade_opcoes()
            "===========================\n");
 }
 
-void msg_43_relatorio_especialidade_inicio()
+void msg_relatorio_especialidade_inicio()
 {
     printf("===========================\n");
     printf("Consultas por Especialidade\n");
     printf("===========================\n");
 }
 
-void msg_44_relatorio_especialidade_item(const char *especialidade, int qtd)
+void msg_relatorio_especialidade_item(const char *especialidade, int qtd)
 {
     printf("%-18s: %d\n", especialidade, qtd);
 }
 
-void msg_45_relatorio_especialidade_fim()
+void msg_relatorio_especialidade_fim()
 {
     printf("===========================\n");
 }

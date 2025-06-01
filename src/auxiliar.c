@@ -1,10 +1,13 @@
 #include <stdio.h>
 #include <time.h>
-#include <strings.h> // Para strcasecmp
+#include <string.h>
+#include <ctype.h>
+#include <stdlib.h>
 #include "../include/estruturas.h"
 #include "../include/mensagens.h"
 #include "../include/modulo_gerenciar_paciente.h"
 #include "../include/validacoes.h"
+#include "../include/files_manager.h"
 
 void limpar_buffer()
 {
@@ -21,7 +24,8 @@ int ler_opcao_menu(int min, int max)
     do
     {
         msg_menu_escolha_opcao();
-        limpar_buffer();
+
+        // limpar_buffer();
         if (!fgets(entrada, sizeof(entrada), stdin))
         {
             msg_menu_opcao_invalida();
@@ -153,8 +157,9 @@ int validar_telefone(char *telefone, size_t tamanho) // podia ter sido padroniza
 // Converte reg_medico para array de strings (buffers externos para campos numéricos)
 void medico_to_array(const reg_medico *m, char *valores[4], char crm[])
 {
-    valores[0] = (char *)m->nome;    // Nome já é string
-    snprintf(crm, 16, "%d", m->crm); // CRM ainda é int, converte para string
+    valores[0] = (char *)m->nome; // Nome já é string
+    strncpy(crm, m->crm, 16);     // CRM já é string
+    crm[15] = '\0';
     valores[1] = crm;
     valores[2] = (char *)m->especialidade; // Especialidade já é string
     valores[3] = (char *)m->telefone;      // Telefone agora é string, só aponta

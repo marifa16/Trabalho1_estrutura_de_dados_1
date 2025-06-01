@@ -45,14 +45,11 @@ void msg_38_mostrar_modulo_medico();
 void msg_39_mostrar_modulo_relatorios();
 void msg_40_opcoes();
 void msg_41_especialidade_medico();
-<<<<<<< HEAD
 void msg_42_exiber_medicos_disponiveis();
-
-=======
 void msg_42_especialidade_opcoes();
-void msg_43_relatorio_especialidade_inicio();
-void msg_44_relatorio_especialidade_item(const char *especialidade, int qtd);
-void msg_45_relatorio_especialidade_fim();
+void msg_relatorio_especialidade_inicio();
+void msg_relatorio_especialidade_item(const char *especialidade, int qtd);
+void msg_relatorio_especialidade_fim();
 void mostrar_menu_principal();
 void mostrar_modulo_consulta();
 void mostrar_modulo_paciente();
@@ -87,5 +84,4 @@ void msg_erro_cpf_digitos();
 void msg_erro_cpf_numeros();
 void msg_erro_telefone_digitos();
 void msg_erro_telefone_numeros();
->>>>>>> 2a3b905c87358954565b014ed6e16a43df50c280
 #endif

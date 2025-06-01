@@ -28,12 +28,7 @@ typedef enum
     PEDIATRA,
     CARDIOLOGISTA,
     DERMATOLOGISTA,
-<<<<<<< HEAD
-    PSIQUIATRA,
-    TOTAL_ESPECIALIDADES
-=======
     PSIQUIATRA
->>>>>>> 2a3b905c87358954565b014ed6e16a43df50c280
 } Especialidade;
 
 // Definição da struct para consultas
@@ -63,7 +58,7 @@ typedef struct
 {
     int id_medico;
     char nome[100];
-    int crm;
+    char crm[16];
     Especialidade especialidade_medico;
     char especialidade[100];
     char telefone[12];
