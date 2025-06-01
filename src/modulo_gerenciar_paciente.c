@@ -3,11 +3,8 @@
 #include "../include/estruturas.h"                // Estruturas utilizadas no código
 #include "../include/mensagens.h"                 // mensagens padronizadas
 #include "../include/modulo_gerenciar_paciente.h" // header do módulo paciente
-#include "../include/validacoes.h"                // biblioteca de funções de validação
 #include "../include/auxiliar.h"                  // funções auxiliares para suporte as funções no módulo
 #include "../include/files_manager.h"             // funções auxiliares para funções com arquivos
-
-char file_paciente[] = "data/registro_pacientes.csv"; // caminho do arquivo que será usado
 
 Estado tratar_modulo_paciente() // função para tratar as funcionalidades do modulo paciente retornado o estado
 {
@@ -34,7 +31,7 @@ Estado tratar_modulo_paciente() // função para tratar as funcionalidades do mo
             // Loop para validar o nome
             do
             {
-                if (!validar_nome_paciente(nome_paciente, sizeof(nome_paciente)))
+                if (!validar_nome_padrao(nome_paciente, sizeof(nome_paciente)))
                 {
                     msg_02_opcao_invalida();
                     continue;
@@ -75,7 +72,7 @@ Estado tratar_modulo_paciente() // função para tratar as funcionalidades do mo
             // Loop para validar o telefone
             do
             {
-                if (!validar_telefone(telefone_paciente, sizeof(telefone_paciente)))
+                if (!validar_telefone_padrao(telefone_paciente, sizeof(telefone_paciente)))
                 {
                     msg_02_opcao_invalida();
                     msg_telefone_invalido();
@@ -98,22 +95,33 @@ Estado tratar_modulo_paciente() // função para tratar as funcionalidades do mo
             valores[1] = cpf_paciente;
             valores[2] = telefone_paciente;
 
-            add_row(file_paciente, 4, valores); // função para adicionar a linha
+            add_row(ARQ_PACIENTES, 4, valores); // função para adicionar a linha
+
+            // Alocação dinâmica de memória para vetor de pacientes
+            extern reg_paciente *pacientes;
+            extern int total_pacientes;
+
+            reg_paciente *novo = realloc(pacientes, (total_pacientes + 1) * sizeof(reg_paciente));
+            if (novo == NULL)
+            {
+                msg_erro_memoria_paciente();
+                break;
+            }
+            pacientes = novo;
+            strcpy(pacientes[total_pacientes].nome, nome_paciente);
+            strcpy(pacientes[total_pacientes].cpf, cpf_paciente);
+            strcpy(pacientes[total_pacientes].telefone, telefone_paciente);
+            total_pacientes++;
+
             msg_15_sucesso_cadastro();
             break;
         }
         case 2: // Exibir Paciente
         {
-            msg_digite_cpf_exibir(); // essa lógica se repete abaixo, como já fiz a parte grosseira não modularizei
-            // limpar_buffer();
-            // lê uma linha digitada pelo usuário do tamanho de cpf_paciente
+            msg_digite_cpf_exibir();
             fgets(cpf_paciente, sizeof(cpf_paciente), stdin);
-            // strcspn(cpf_paciente, "\n") retorna a posição do primeiro \n (nova linha) encontrado.
-            // Substitui esse caractere por \0 (fim de string), removendo o ENTER digitado pelo usuário.
             cpf_paciente[strcspn(cpf_paciente, "\n")] = '\0';
 
-            // Chama a função validar_cpf para verificar se o CPF digitado é válido (tamanho correto, só números, etc).
-            // Se não for válido, entra no bloco do if.
             if (!validar_cpf(cpf_paciente, sizeof(cpf_paciente)))
             {
                 msg_02_opcao_invalida();
@@ -121,11 +129,40 @@ Estado tratar_modulo_paciente() // função para tratar as funcionalidades do mo
                 break;
             }
 
-            int id = get_id(file_paciente, 2, cpf_paciente); // função para resgatar o id do paciente pelo cpf
-            if (id < 0)                                      // se id não for válido
+            // NOVO: Busca o paciente em memória usando ponteiro
+            reg_paciente *p = buscar_paciente_por_cpf(cpf_paciente);
+            if (p == NULL)
+            {
                 msg_paciente_nao_encontrado(cpf_paciente);
-            else                             // se for válido
-                read_row(file_paciente, id); // função para ler a linha com o id
+            }
+            else
+            {
+                printf("========================================\n");
+                printf("Nome    : %s\n", p->nome);
+                printf("CPF     : %s\n", p->cpf);
+                printf("Telefone: %s\n", p->telefone);
+                printf("========================================\n");
+
+                // Manipulação de string com ponteiros
+                // Cópia
+                char nome_copia[120];
+                strcpy(nome_copia, p->nome);
+
+                // Concatenação
+                char mensagem[256] = "Paciente: ";
+                strcat(mensagem, p->nome);
+                strcat(mensagem, " | Telefone: ");
+                strcat(mensagem, p->telefone);
+
+                // Comparação
+                if (strcmp(p->nome, "Anderson Carlos") == 0)
+                {
+                    printf("Bem-vindo, Anderson!\n");
+                }
+
+                printf("Mensagem concatenada: %s\n", mensagem);
+                printf("Nome copiado: %s\n", nome_copia);
+            }
             break;
         }
         case 3: // Atualizar Paciente
@@ -147,7 +184,7 @@ Estado tratar_modulo_paciente() // função para tratar as funcionalidades do mo
                 break;
             }
 
-            atualizar_paciente(file_paciente, cpf_paciente, valores); // função para atualizar o paciente
+            atualizar_paciente(ARQ_PACIENTES, cpf_paciente, valores); // função para atualizar o paciente
             break;
         }
         case 4: // Deletar Paciente
@@ -169,14 +206,14 @@ Estado tratar_modulo_paciente() // função para tratar as funcionalidades do mo
                 break;
             }
 
-            int linha_del = buscar_linha(file_paciente, 2, cpf_paciente); // busca a linha com o cpf do paciente
+            int linha_del = buscar_linha(ARQ_PACIENTES, 2, cpf_paciente); // busca a linha com o cpf do paciente
             if (linha_del < 0)                                            // se a linha não for válida
             {
                 msg_paciente_nao_encontrado(cpf_paciente);
                 break;
             }
 
-            if (del_row(file_paciente, linha_del)) // deleta a linha do id_informado e usa o retorno dela para exibir mensagem
+            if (del_row(ARQ_PACIENTES, linha_del)) // deleta a linha do id_informado e usa o retorno dela para exibir mensagem
                 msg_paciente_deletado();
             else
                 msg_erro_deletar_paciente();

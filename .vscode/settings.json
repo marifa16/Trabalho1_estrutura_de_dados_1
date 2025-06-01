@@ -13,7 +13,8 @@
         "validacoes.h": "c",
         "stdlib.h": "c",
         "estruturas.h": "c",
-        "files_manager.h": "c"
+        "files_manager.h": "c",
+        "auxiliar.h": "c"
     },
     "C_Cpp.default.compilerPath": "C:/MinGW/bin/gcc.exe"
 }

@@ -5,7 +5,7 @@
 
 Estado tratar_menu_principal()
 {
-    msg_33_boas_vindas(); // exibe o menu principal
+    msg_33_boas_vindas();               // exibe o menu principal
     int escolha = ler_opcao_menu(1, 5); // trata a entrada do usuário para um valor válido
 
     switch (escolha) // depende da escolha do usuário é levado a um novo estado

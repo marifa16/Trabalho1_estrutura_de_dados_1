@@ -1,13 +1,12 @@
-#include "../include/estruturas.h"
-#include "../include/mensagens.h"
-#include "../include/modulo_gerenciar_medico.h"
-#include "../include/validacoes.h"
-#include "../include/files_manager.h"
-#include "../include/auxiliar.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include "../include/estruturas.h"
+#include "../include/mensagens.h"
+#include "../include/modulo_gerenciar_medico.h"
+#include "../include/files_manager.h"
+#include "../include/auxiliar.h"
 
 const char *especialidade_string(Especialidade especialidade);
 
@@ -25,29 +24,13 @@ Estado tratar_modulo_medico()
 
     do
     {
-        msg_38_mostrar_modulo_medico(); // Exibe o menu de gerenciamento de mÃ©dicos
-
-        // Limpa o buffer de entrada se o prÃ³ximo caractere for '\n'
-        int c = getchar();
-        if (c != '\n' && c != EOF)
-        {
-            ungetc(c, stdin); // Devolve o caractere se nÃ£o era '\n'
-        }
-
-        char escolha_modulo_str[10];
-        fgets(escolha_modulo_str, sizeof(escolha_modulo_str), stdin); // LÃª a entrada como string
-        escolha_modulo_str[strcspn(escolha_modulo_str, "\n")] = '\0'; // Remove o caractere de nova linha
-
-        // Converte a entrada para inteiro
-        if (sscanf(escolha_modulo_str, "%d", &escolha_modulo) != 1)
-        {
-            msg_02_opcao_invalida();
-            continue;
-        }
+        // Menu principal do mÃ³dulo mÃ©dico
+        msg_38_mostrar_modulo_medico();
+        escolha_modulo = ler_opcao_menu(1, 6); // 1 a 6 conforme seu menu
 
         switch (escolha_modulo)
         {
-        case 1: // Criar Médico
+        case 1: // Criar medico
         {
             msg_22_criar_medico(); // Mensagem de boas-vindas ao cadastro
 
@@ -55,39 +38,13 @@ Estado tratar_modulo_medico()
             do
             {
                 msg_23_nome_medico();
-                fgets(nome_medico, sizeof(nome_medico), stdin); // LÃª o nome do mÃ©ddico como string
-                nome_medico[strcspn(nome_medico, "\n")] = '\0'; // Remove o caractere de nova linha
-
-                // Verifica se o nome nÃ£o estÃ¡ vazio
-                if (strlen(nome_medico) == 0)
-                {
-                    msg_02_opcao_invalida();
-                    printf("O nome do mÃ©dico nÃ£o pode estar vazio.\n");
-                    continue; // Volta a solicitar o nome
-                }
-
-                // Verifica se o nome contÃ©m nÃºmeros
-                int contem_numero = 0;
-                for (size_t i = 0; i < strlen(nome_medico); i++)
-                {
-                    if (isdigit(nome_medico[i])) // Verifica se o caractere Ã© um nÃºmero
-                    {
-                        contem_numero = 1; // Marca que o nome contÃ©m nÃºmeros
-                        break;             // Sai do loop
-                    }
-                }
-                if (contem_numero)
-                {
-                    msg_02_opcao_invalida();
-                    printf("O nome do mÃ©dico nÃ£o pode conter nÃºmeros.\n");
-                    continue; // Volta a solicitar o nome
-                }
-
+                if (!validar_nome_padrao(nome_medico, sizeof(nome_medico)))
+                    continue;
                 msg_24_validar_nome_medico();
-                printf("%s\n", nome_medico); // Exibe o nome do mÃ©dico
+                printf("%s\n", nome_medico);
 
                 msg_40_opcoes();
-                // Função Validar
+                // Funï¿½ï¿½o Validar
                 int opcao = ler_opcao_menu(1, 3); // 1=SIM, 2=NÃƒO, 3=SAIR
                 if (opcao == 1)                   // SIM
                 {
@@ -112,39 +69,14 @@ Estado tratar_modulo_medico()
             do
             {
                 msg_30_crm();
-                fgets(crm, sizeof(crm), stdin); // LÃª o CRM como string
-                crm[strcspn(crm, "\n")] = '\0'; // Remove o caractere de nova linha
+                if (!validar_crm(crm, sizeof(crm)))
+                    continue;
 
-                // Verifica se o CRM possui 6 digitos
-                if (strlen(crm) != 6)
-                {
-                    msg_02_opcao_invalida();
-                    printf("O CRM deve conter 6 dÃ­gitos.\n");
-                    continue; // Volta para solicitar o CRM de novo
-                }
-
-                // Verifica se todos os caracteres sÃ£o nÃºmeros
-                int valido = 1;
-                for (size_t i = 0; i < strlen(crm); i++)
-                {
-                    if (crm[i] < '0' || crm[i] > '9')
-                    {
-                        valido = 0;
-                        break;
-                    }
-                }
-                if (!valido)
-                {
-                    msg_02_opcao_invalida();
-                    printf("O CRM deve conter apenas nÃºmeros.\n");
-                    continue; // Volta para solicitar o CRM de novo
-                }
-
-                printf("O CRM informado foi: %s\n", crm); // Exibe o crm do médico
+                printf("O CRM informado foi: %s\n", crm); // Exibe o crm domedico
 
                 msg_40_opcoes();
-                // Função Validar
-                int opcao = ler_opcao_menu(1, 3); // 1=SIM, 2=NÃO, 3=SAIR
+                // Funï¿½ï¿½o Validar
+                int opcao = ler_opcao_menu(1, 3); // 1=SIM, 2=Nï¿½O, 3=SAIR
                 if (opcao == 1)                   // SIM
                 {
                     break; // Sai do loop
@@ -156,7 +88,7 @@ Estado tratar_modulo_medico()
                 else if (opcao == 3) // SAIR
                 {
                     msg_05_retornando_menu();
-                    return ESTADO_GERENCIAR_MEDICO; // Retorna ao menu gerenciar médico
+                    return ESTADO_GERENCIAR_MEDICO; // Retorna ao menu gerenciarmedico
                 }
                 else
                 {
@@ -168,54 +100,26 @@ Estado tratar_modulo_medico()
             do
             {
                 msg_14_informar_telefone();
-                char telefone_str[15];                            // Variável que armazena o telefone como string
-                fgets(telefone_str, sizeof(telefone_str), stdin); // LÃª o telefone como string
-                telefone_str[strcspn(telefone_str, "\n")] = '\0'; // Remove o caractere de linha
-
-                // Verifica se o telefone tem 11 digitos
-                if (strlen(telefone_str) != 11)
-                {
-                    msg_02_opcao_invalida();
-                    printf("O telefone deve conter 11 digitos (DDD + NÃšMERO).\n");
-                    continue; // Volta para solicitar o telefone
-                }
-
-                // Verifica se os caracteres são números
-                int valido = 1;
-                for (size_t i = 0; i < strlen(telefone_str); i++)
-                {
-                    if (telefone_str[i] < '0' || telefone_str[i] > '9') // Verifica se o caractere Ã© um dÃ­gito
-                    {
-                        valido = 0;
-                        break;
-                    }
-                }
-                if (!valido)
-                {
-                    msg_02_opcao_invalida();
-                    printf("O telefone deve conter apenas nÃºmeros.\n");
-                    continue; // Volta para solicitar o telefone
-                }
-
-                printf("O telefone informado foi: %s\n", telefone_str); // Exibe o telefone do médico
+                if (!validar_telefone_padrao(telefone, sizeof(telefone)))
+                    continue;
+                printf("O telefone informado foi: %s\n", telefone);
 
                 msg_40_opcoes();
-                // Funçãoo Validar
+                // Funcao Validar
                 int opcao = ler_opcao_menu(1, 3);
 
                 if (opcao == 1) // SIM
                 {
-                    strcpy(telefone, telefone_str); // <-- COPIA O TELEFONE VALIDADO
                     break;
                 }
-                else if (opcao == 2) // NÃO
+                else if (opcao == 2) // NAO
                 {
                     continue; // Volta para solicitar o telefone de novo
                 }
                 else if (opcao == 3) // SAIR
                 {
                     msg_05_retornando_menu();
-                    return ESTADO_GERENCIAR_MEDICO; // Retorna ao menu gerenciar médico
+                    return ESTADO_GERENCIAR_MEDICO; // Retorna ao menu gerenciarmedico
                 }
                 else
                 {
@@ -223,53 +127,36 @@ Estado tratar_modulo_medico()
                 }
             } while (1);
 
-            // Especialidade médica
+            // Especialidade mï¿½dica
             do
             {
                 msg_41_especialidade_medico();
 
-                // Exibe as opções de especialidades
+                // Exibe as opcoes de especialidades
                 for (int i = 0; i < TOTAL_ESPECIALIDADES; i++)
                 {
                     printf("[%d] - %s\n", i + 1, especialidade_string(i));
                 }
 
                 printf("Escolha uma especialidade (1-%d): ", TOTAL_ESPECIALIDADES);
-                char escolha_especialidade_str[10];
-                fgets(escolha_especialidade_str, sizeof(escolha_especialidade_str), stdin);
-                escolha_especialidade_str[strcspn(escolha_especialidade_str, "\n")] = '\0';
+                int escolha_especialidade = ler_opcao_menu(1, TOTAL_ESPECIALIDADES);
+                especialidade_medico = escolha_especialidade - 1; // Atribui o valor do enum corretamente
 
-                int escolha_especialidade;
-                if (sscanf(escolha_especialidade_str, "%d", &escolha_especialidade) != 1)
+                msg_40_opcoes();
+                int opcao = ler_opcao_menu(1, 3);
+
+                if (opcao == 1) // SIM
                 {
-                    msg_02_opcao_invalida();
-                    continue;
+                    break; // Sai do do-while e segue para o cadastro
                 }
-                if (escolha_especialidade >= 1 && escolha_especialidade <= TOTAL_ESPECIALIDADES)
+                else if (opcao == 2) // NAO
                 {
-                    especialidade_medico = escolha_especialidade - 1;
-                    printf("A especialidade escolhida foi: %s\n", especialidade_string(especialidade_medico));
-
-                    msg_40_opcoes();
-                    int opcao = ler_opcao_menu(1, 3);
-
-                    if (opcao == 1) // SIM
-                    {
-                        break; // Sai do do-while e segue para o cadastro
-                    }
-                    else if (opcao == 2) // NÃO
-                    {
-                        continue; // Volta a perguntar a especialidade
-                    }
-                    else if (opcao == 3) // SAIR
-                    {
-                        msg_05_retornando_menu();
-                        return ESTADO_GERENCIAR_MEDICO;
-                    }
-                    else
-                    {
-                        msg_02_opcao_invalida();
-                    }
+                    continue; // Volta a perguntar a especialidade
+                }
+                else if (opcao == 3) // SAIR
+                {
+                    msg_05_retornando_menu();
+                    return ESTADO_GERENCIAR_MEDICO;
                 }
                 else
                 {
@@ -277,11 +164,11 @@ Estado tratar_modulo_medico()
                 }
             } while (1);
 
-            // Agora, fora do do-while, faça o cadastro:
+            // Agora, fora do do-while, faca o cadastro:
             medicos = realloc(medicos, (total_medicos + 1) * sizeof(reg_medico));
             if (medicos == NULL)
             {
-                printf("Erro ao alocar memória para o médico.\n");
+                printf("Erro ao alocar memoria para o medico.\n");
                 return (1);
             }
             strcpy(medicos[total_medicos].nome, nome_medico);
@@ -293,51 +180,51 @@ Estado tratar_modulo_medico()
             char *valores[4];
             valores[0] = nome_medico;
             valores[1] = crm;
-            valores[2] = (char *)especialidade_string(especialidade_medico);
+            valores[2] = (char *)especialidade_string(especialidade_medico); // apenas aqui, se necessÃ¡rio
             valores[3] = telefone;
 
-            add_row("data/registro_medicos.csv", 5, valores); // 5 colunas (id + 4 campos)
+            add_row(ARQ_MEDICOS, 5, valores); // 5 colunas (id + 4 campos)
             msg_29_sucesso_cadastro_medico();
             break;
         }
 
-        case 2: // Exibir Médico
+        case 2: // Exibir medico
         {
             char crm_busca[16];
             printf("Digite o CRM do mÃ©dico para exibir: ");
             fgets(crm_busca, sizeof(crm_busca), stdin);
             crm_busca[strcspn(crm_busca, "\n")] = '\0';
 
-            int id = get_id("data/registro_medicos.csv", 2, crm_busca);
+            int id = get_id(ARQ_MEDICOS, 2, crm_busca);
             if (id < 0)
             {
-                printf("MÃ©dico com CRM %s nÃ£o encontrado!\n", crm_busca);
+                msg_medico_nao_encontrado(crm_busca);
             }
             else
             {
-                read_row("data/registro_medicos.csv", id); // LÃª a linha do mÃ©dico
+                read_row(ARQ_MEDICOS, id); // LÃª a linha do mÃ©dico
             }
             break;
         }
 
-        case 3: // Atualizar Médico
+        case 3: // Atualizar medico
         {
             char crm_busca[16];
-            printf("Digite o CRM do médico para atualizar: ");
+            printf("Digite o CRM domedico para atualizar: ");
             fgets(crm_busca, sizeof(crm_busca), stdin);
             crm_busca[strcspn(crm_busca, "\n")] = '\0';
 
-            int linha = buscar_linha("data/registro_medicos.csv", 2, crm_busca);
+            int linha = buscar_linha(ARQ_MEDICOS, 2, crm_busca);
             if (linha < 0)
             {
-                printf("Médico com CRM %s não encontrado!\n", crm_busca);
+                printf("Mï¿½dico com CRM %s nï¿½o encontrado!\n", crm_busca);
                 return ESTADO_GERENCIAR_MEDICO;
             }
 
-            FILE *arquivo = fopen("data/registro_medicos.csv", "r");
+            FILE *arquivo = fopen(ARQ_MEDICOS, "r");
             if (!arquivo)
             {
-                printf("Erro ao abrir o arquivo!\n");
+                msg_erro_abrir_arquivo();
                 break;
             }
             char linha_csv[512];
@@ -423,7 +310,7 @@ Estado tratar_modulo_medico()
                     break;
                 }
 
-                printf("Deseja atualizar mais alguma informação?\n[1] - SIM\n[2] - NÃO\n[3] - SAIR\n");
+                printf("Deseja atualizar mais alguma informacao?\n[1] - SIM\n[2] - NAO\n[3] - SAIR\n");
                 char resp[10];
                 fgets(resp, sizeof(resp), stdin);
                 int resp_int = atoi(resp);
@@ -436,15 +323,15 @@ Estado tratar_modulo_medico()
                 }
             }
 
-            // Atualiza a linha do médico
+            // Atualiza a linha domedico
             char *valores[5];
             valores[0] = id;
             valores[1] = nome;
             valores[2] = crm;
             valores[3] = especialidade;
             valores[4] = telefone;
-            att_row("data/registro_medicos.csv", linha, 5, valores);
-            printf("Médico atualizado com sucesso!\n");
+            att_row(ARQ_MEDICOS, linha, 5, valores);
+            printf("Medico atualizado com sucesso!\n");
             break;
         }
 
@@ -455,17 +342,17 @@ Estado tratar_modulo_medico()
             fgets(crm_busca, sizeof(crm_busca), stdin);
             crm_busca[strcspn(crm_busca, "\n")] = '\0';
 
-            int linha = buscar_linha("data/registro_medicos.csv", 2, crm_busca);
+            int linha = buscar_linha(ARQ_MEDICOS, 2, crm_busca);
             if (linha < 0)
             {
                 printf("Medico com CRM: %s, nÃ£o encontrado!\n", crm_busca);
                 break;
             }
 
-            if (del_row("data/registro_medicos.csv", linha))
-                printf("Medico deletado com sucesso!\n");
+            if (del_row(ARQ_MEDICOS, linha))
+                msg_paciente_deletado(); // Ou crie msg_medico_deletado()
             else
-                printf("Erro ao deletar mÃ©dico!\n");
+                msg_erro_deletar_paciente(); // Ou crie msg_erro_deletar_medico()
             break;
         }
 
@@ -487,24 +374,4 @@ Estado tratar_modulo_medico()
         }
     } while (estado_atual == ESTADO_GERENCIAR_MEDICO);
     return estado_atual;
-}
-
-// FunÃ§Ã£o para convertere especialidade enum para string
-const char *especialidade_string(Especialidade especialidade)
-{
-    switch (especialidade)
-    {
-    case CLINICO_GERAL:
-        return "ClÃ­nico Geral";
-    case PEDIATRA:
-        return "Pedriatra";
-    case CARDIOLOGISTA:
-        return "Cardiologista";
-    case DERMATOLOGISTA:
-        return "Dermatologista";
-    case PSIQUIATRA:
-        return "Psiquiatra";
-    default:
-        return "Especialidade Desconhecida"; // Retorna uma string para especialidade desconhecida
-    }
 }

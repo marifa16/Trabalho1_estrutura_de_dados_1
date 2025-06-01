@@ -84,4 +84,8 @@ void msg_erro_cpf_digitos();
 void msg_erro_cpf_numeros();
 void msg_erro_telefone_digitos();
 void msg_erro_telefone_numeros();
+void msg_erro_crm_digitos();
+void msg_erro_crm_numeros();
+void msg_erro_nome_vazio();
+void msg_erro_nome_numeros();
 #endif

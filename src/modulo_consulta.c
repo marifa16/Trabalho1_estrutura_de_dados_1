@@ -6,7 +6,6 @@
 #include "../include/modulo_consulta.h"
 #include "../include/mensagens.h"
 #include "../include/modulo_gerenciar_medico.h"
-#include "../include/validacoes.h"
 #include "../include/auxiliar.h"
 #include "../include/modulo_gerenciar_paciente.h"
 #include "../include/files_manager.h"
@@ -17,27 +16,16 @@ int total_consultas = 0;        // Contador
 
 const char *especialidade_string(Especialidade especialidade);
 
-void carregar_medicos_do_arquivo(void);
-
 Estado tratar_modulo_consulta()
 {
     Estado estado_atual = ESTADO_MENU_CONSULTA; // Inicializa o estado como ESTADO_MENU_CONSULTA
     int escolha = 0;
-    char escolha_str[10]; // Variável para armazenar a entrada do usuário
 
     do
     {
         // Exibe o menu de consultas
         msg_01_agendar_consulta();
-        fgets(escolha_str, sizeof(escolha_str), stdin); // Lê a entrada do usuário como string
-        escolha_str[strcspn(escolha_str, "\n")] = '\0'; // Remove o caractere de nova linha
-
-        // Converte a entrada para inteiro
-        if (sscanf(escolha_str, "%d", &escolha) != 1)
-        {
-            msg_02_opcao_invalida();
-            continue;
-        }
+        escolha = ler_opcao_menu(1, 4); // conforme o menu de consultas
 
         switch (escolha)
         {
@@ -49,7 +37,7 @@ Estado tratar_modulo_consulta()
             cpf_paciente[strcspn(cpf_paciente, "\n")] = '\0';
 
             // Valida paciente
-            int id_paciente = get_id("data/registro_pacientes.csv", 2, cpf_paciente);
+            int id_paciente = get_id(ARQ_PACIENTES, 2, cpf_paciente);
             if (id_paciente < 0)
             {
                 printf("Paciente com CPF %s não encontrado! Não é possível agendar consulta.\n", cpf_paciente);
@@ -115,7 +103,7 @@ Estado tratar_modulo_consulta()
                 char mes_str[10];
                 fgets(mes_str, sizeof(mes_str), stdin);
                 mes_str[strcspn(mes_str, "\n")] = '\0';
-                if (sscanf(mes_str, "%d", &mes) != 1 || mes < 1 || mes > 12)
+                if (sscanf(mes_str, "%d", &mes) != 1 || !validar_mes(mes))
                 {
                     msg_02_opcao_invalida();
                     continue;
@@ -124,7 +112,7 @@ Estado tratar_modulo_consulta()
                 char dia_str[10];
                 fgets(dia_str, sizeof(dia_str), stdin);
                 dia_str[strcspn(dia_str, "\n")] = '\0';
-                if (sscanf(dia_str, "%d", &dia) != 1 || dia < 1 || dia > 31)
+                if (sscanf(dia_str, "%d", &dia) != 1 || !validar_dia2(dia, mes, ano))
                 {
                     msg_02_opcao_invalida();
                     continue;
@@ -224,7 +212,7 @@ Estado tratar_modulo_consulta()
             valores[2] = data_hora;
             valores[3] = status;
 
-            add_row("data/registro_consultas.csv", 5, valores);
+            add_row(ARQ_CONSULTAS, 5, valores);
 
             msg_08_sucesso_agendamento();
             printf("Consulta marcada para %02d/%02d/%d às %02d:00 com o médico %s.\n",
@@ -454,48 +442,4 @@ Estado tratar_modulo_consulta()
     } while (estado_atual == ESTADO_MENU_CONSULTA);
 
     return estado_atual;
-}
-
-void carregar_medicos_do_arquivo()
-{
-    FILE *arquivo = fopen("data/registro_medicos.csv", "r");
-    if (!arquivo)
-        return;
-
-    char linha[512];
-    fgets(linha, sizeof(linha), arquivo); // Pula o cabeçalho
-
-    // Libera vetor antigo, se houver
-    if (medicos)
-    {
-        free(medicos);
-        medicos = NULL;
-        total_medicos = 0;
-    }
-
-    while (fgets(linha, sizeof(linha), arquivo))
-    {
-        reg_medico temp;
-        int id;
-        char especialidade[100];
-        if (sscanf(linha, "%d,%99[^,],%15[^,],%99[^,],%15[^,\n]",
-                   &id, temp.nome, temp.crm, especialidade, temp.telefone) == 5)
-        {
-            temp.id_medico = id;
-            strncpy(temp.especialidade, especialidade, sizeof(temp.especialidade));
-            temp.especialidade[sizeof(temp.especialidade) - 1] = '\0';
-            // Descobre o enum da especialidade
-            for (int i = 0; i < TOTAL_ESPECIALIDADES; i++)
-            {
-                if (strcmp(especialidade, especialidade_string(i)) == 0)
-                {
-                    temp.especialidade_medico = i;
-                    break;
-                }
-            }
-            medicos = realloc(medicos, (total_medicos + 1) * sizeof(reg_medico));
-            medicos[total_medicos++] = temp;
-        }
-    }
-    fclose(arquivo);
 }

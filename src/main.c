@@ -49,5 +49,14 @@ int main()
 
     msg_03_finalizacao(); // encerra execução do programa
 
+    // Libera memória alocada dinamicamente
+    free(pacientes);
+    pacientes = NULL;
+
+    // Se usar médicos em memória:
+    extern reg_medico *medicos;
+    free(medicos);
+    medicos = NULL;
+
     return 0;
 }

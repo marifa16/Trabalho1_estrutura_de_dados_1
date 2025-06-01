@@ -548,3 +548,22 @@ void msg_erro_telefone_numeros()
 {
     printf("O telefone deve conter apenas números.\n");
 }
+void msg_erro_crm_digitos()
+{
+    printf("O CRM deve conter exatamente 6 dígitos.\n");
+}
+
+void msg_erro_crm_numeros()
+{
+    printf("O CRM deve conter apenas números.\n");
+}
+
+void msg_erro_nome_vazio()
+{
+    printf("O nome não pode estar vazio.\n");
+}
+
+void msg_erro_nome_numeros()
+{
+    printf("O nome não pode conter números.\n");
+}

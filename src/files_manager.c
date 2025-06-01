@@ -4,14 +4,16 @@
 #include <sys/stat.h>
 #include <string.h>
 #include <time.h>
+#include <locale.h>
 #include "../include/estruturas.h"
 #include "../include/auxiliar.h"
-#include <locale.h>
+#include "../include/mensagens.h" // Adicione esta linha logo após os outros includes
 
-// Cria um arquivo CSV com o cabe�alho adequado se ele n�o existir
+
+// Cria um arquivo CSV com o cabecalho adequado se ele nao existir
 void criar_arquivo_csv(const char *nome_arquivo)
 {
-    setlocale(LC_ALL, "pt_BR.UTF-8"); // Configura o locale para portugu�s do Brasil com suporte a UTF-8
+    setlocale(LC_ALL, "pt_BR.UTF-8"); // Configura o locale para portugues do Brasil com suporte a UTF-8
 
     struct stat buffer;
 
@@ -43,7 +45,7 @@ void criar_arquivo_csv(const char *nome_arquivo)
     }
 }
 
-// Inicializa todos os arquivos CSV necess�rios
+// Inicializa todos os arquivos CSV necessarios
 void inicializar_arquivos_csv()
 {
     criar_arquivo_csv("data/registro_consultas.csv");
@@ -52,7 +54,7 @@ void inicializar_arquivos_csv()
     printf("\nInicialização Concluida\n");
 }
 
-// Adiciona uma nova linha ao CSV, gerando um novo id �nico
+// Adiciona uma nova linha ao CSV, gerando um novo id unico
 int add_row(const char *nome_arquivo, int select_col, char *valores[])
 {
     int novo_id = get_maior_id(nome_arquivo) + 1; // Busca o maior id e incrementa
@@ -65,7 +67,7 @@ int add_row(const char *nome_arquivo, int select_col, char *valores[])
     }
 
     fprintf(arquivo, "%d", novo_id);         // Escreve o novo id
-    for (int i = 0; i < select_col - 1; i++) // -1 pois j� escrevemos o id
+    for (int i = 0; i < select_col - 1; i++) // -1 pois ja escrevemos o id
     {                                        // Escreve os demais campos
         fprintf(arquivo, ",%s", valores[i]);
     }
@@ -206,8 +208,11 @@ int att_row(const char *nome_arquivo, int row, int num_colunas, char *valores[])
     fclose(temp);
 
     // Substitui o arquivo original pelo tempor�rio
-    remove(nome_arquivo);
-    rename("temp.csv", nome_arquivo);
+    if (remove(nome_arquivo) != 0 || rename("temp.csv", nome_arquivo) != 0)
+    {
+        msg_erro_abrir_arquivo_nome(nome_arquivo);
+        return 0;
+    }
 
     return atualizou;
 }
@@ -382,7 +387,7 @@ void relatorio_contagem_consultas_por_especialidade()
     int contagem[5] = {0, 0, 0, 0, 0};
 
     // Percorre todas as consultas
-    FILE *arq_cons = fopen("data/registro_consultas.csv", "r");
+    FILE *arq_cons = fopen(ARQ_CONSULTAS, "r");
     if (!arq_cons)
     {
         printf("Erro ao abrir o arquivo de consultas.\n");
@@ -398,7 +403,7 @@ void relatorio_contagem_consultas_por_especialidade()
         if (sscanf(linha, "%d,%d,%d,%31[^,],%15[^\n]", &id_consulta, &id_paciente, &id_medico, data_hora, status) == 5)
         {
             // Descobre a especialidade do m�dico
-            FILE *arq_med = fopen("data/registro_medicos.csv", "r");
+            FILE *arq_med = fopen(ARQ_MEDICOS, "r");
             if (!arq_med)
                 continue;
             char linha_med[512];
@@ -412,12 +417,16 @@ void relatorio_contagem_consultas_por_especialidade()
                     if (id_med == id_medico)
                     {
                         // Conta para a especialidade correta
-                        for (int i = 0; i < 5; i++)
+                        char espec[100];
+                        if (buscar_especialidade_medico_por_id(id_medico, espec, sizeof(espec)))
                         {
-                            if (strcasecmp(especialidade, especialidades[i]) == 0)
+                            for (int i = 0; i < 5; i++)
                             {
-                                contagem[i]++;
-                                break;
+                                if (strcasecmp(espec, especialidades[i]) == 0)
+                                {
+                                    contagem[i]++;
+                                    break;
+                                }
                             }
                         }
                         break;
@@ -430,7 +439,7 @@ void relatorio_contagem_consultas_por_especialidade()
     fclose(arq_cons);
 
     // Exibe o relat�rio
-    printf("\nRelat�rio de Consultas por Especialidade\n");
+    printf("\nRelatorio de Consultas por Especialidade\n");
     printf("+-------------------+---------------------+\n");
     printf("| Especialidade     | Quantidade de Consultas |\n");
     printf("+-------------------+---------------------+\n");

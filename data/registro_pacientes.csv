@@ -1,25 +1,5 @@
 id_paciente,nome,cpf,telefone
-2,PacienteAtualizado,00000000001,11999999999
-3,Paciente3,00000000002,11999990003
-5,PacienteAtualizado,00000000003,11999999999
-6,Paciente3,00000000004,11999990003
-
-// Escolher médico
-int escolha_medico = 0;
-do
-{
-    msg_06_escolher_medico();
-    limpar_buffer(); // <-- ADICIONE ESTA LINHA
-    char escolha_medico_str[10];
-    fgets(escolha_medico_str, sizeof(escolha_medico_str), stdin);
-    escolha_medico_str[strcspn(escolha_medico_str, "\n")] = '\0';
-
-    // Valida se é um número e se está no intervalo de médicos cadastrados
-    if (sscanf(escolha_medico_str, "%d", &escolha_medico) != 1 ||
-        escolha_medico < 1 || escolha_medico > total_medicos)
-    {
-        msg_02_opcao_invalida();
-        continue;
-    }
-    break;
-} while (1);
+1,Anderson Carlos,00000000001,11999999900
+2,Maria Fonseca,00000000002,11999999901
+3,João Pedro,00000000003,11999999902
+5,George Felipe,00000000004,11999999903
