@@ -10,7 +10,6 @@ Estado tratar_modulo_relatorios()
 {
     Estado estado_atual = ESTADO_MODULO_RELATORIOS;
     int escolha_modulo;
-
     do
     {
         msg_39_mostrar_modulo_relatorios();
@@ -22,16 +21,13 @@ Estado tratar_modulo_relatorios()
         {
             char cpf[12];
             msg_13_informar_cpf();
-            limpar_buffer();
             fgets(cpf, sizeof(cpf), stdin);
-            cpf[strcspn(cpf, "\n")] = '\0';
+            cpf[strcspn(cpf, "\n")] = '\0'; // Remove o caractere de nova linha
 
-            // Valida se o paciente existe
             int id_paciente = get_id(ARQ_PACIENTES, 2, cpf);
-            if (id_paciente < 0)
+            if (id_paciente == -1)
             {
-                msg_02_opcao_invalida();
-                msg_paciente_nao_encontrado(cpf); // Função já existe em mensagens.c
+                msg_paciente_nao_encontrado(cpf);
                 break;
             }
 
@@ -39,9 +35,9 @@ Estado tratar_modulo_relatorios()
             char id_paciente_str[16];
             snprintf(id_paciente_str, sizeof(id_paciente_str), "%d", id_paciente);
             printf("Consultas do paciente (CPF: %s):\n", cpf);
-            msg_cabecalho_tabela_consultas();
             exibir_arquivo(ARQ_CONSULTAS, "paciente", id_paciente_str);
-            msg_rodape_tabela_consultas();
+
+            limpar_buffer();
             break;
         }
 
@@ -49,15 +45,14 @@ Estado tratar_modulo_relatorios()
         {
             char crm_str[16];
             printf("Digite o CRM do médico: ");
-            limpar_buffer();
             fgets(crm_str, sizeof(crm_str), stdin);
             crm_str[strcspn(crm_str, "\n")] = '\0';
 
             // Valida se o médico existe
             int id_medico = get_id(ARQ_MEDICOS, 2, crm_str);
-            if (id_medico < 0)
+            if (id_medico == -1)
             {
-                msg_medico_nao_encontrado(crm_str); // Função já existe em mensagens.c
+                msg_medico_nao_encontrado(crm_str);
                 break;
             }
 
@@ -65,9 +60,9 @@ Estado tratar_modulo_relatorios()
             char id_medico_str[16];
             snprintf(id_medico_str, sizeof(id_medico_str), "%d", id_medico);
             printf("Consultas do médico (CRM: %s):\n", crm_str);
-            msg_cabecalho_tabela_consultas();
             exibir_arquivo(ARQ_CONSULTAS, "medico", id_medico_str);
-            msg_rodape_tabela_consultas();
+
+            limpar_buffer();
             break;
         }
 
@@ -98,61 +93,52 @@ Estado tratar_modulo_relatorios()
             // Exibe consultas pela especialidade selecionada
             char *especialidade_selecionada = especialidades[opcao - 1];
             printf("Consultas da especialidade %s:\n", especialidade_selecionada);
-            msg_cabecalho_tabela_consultas();
             exibir_arquivo(ARQ_CONSULTAS, "especialidade", especialidade_selecionada);
-            msg_rodape_tabela_consultas();
+
+            limpar_buffer();
             break;
         }
 
-        case 4: // Relatório de pacientes sem consultas
+        case 4: // Consultas do dia atual
         {
-            printf("Pacientes sem consultas agendadas:\n");
-            exibir_arquivo(ARQ_PACIENTES, "sem_consultas", "");
+            char data_atual_sistema[11]; // AAAA-MM-DD
+            obter_data_atual(data_atual_sistema);
+
+            char data_formatada_para_csv[11]; // DD/MM/AAAA
+            // Converte AAAA-MM-DD para DD/MM/AAAA
+            // data_atual_sistema: YYYY-MM-DD
+            // data_formatada_para_csv: DD/MM/YYYY
+            snprintf(data_formatada_para_csv, sizeof(data_formatada_para_csv), "%.2s/%.2s/%.4s",
+                     data_atual_sistema + 8, // DD
+                     data_atual_sistema + 5, // MM
+                     data_atual_sistema);    // YYYY
+
+            printf("Consultas agendadas para hoje (%s):\n", data_formatada_para_csv);
+            exibir_arquivo(ARQ_CONSULTAS, "data", data_formatada_para_csv);
+
+            limpar_buffer();
             break;
         }
-
-        case 5: // Relatório de médicos sem consultas
+        case 5: // Nova opção: Quantidade de consultas por especialidade
         {
-            printf("Médicos sem consultas agendadas:\n");
-            exibir_arquivo(ARQ_MEDICOS, "sem_consultas", "");
+            relatorio_contagem_consultas_por_especialidade(); // Chama a função do relatório
+            limpar_buffer();
             break;
         }
-
-        case 6: // Consultas no período
+        case 6: // Voltar ao menu principal
         {
-            char data_inicio[11], data_fim[11];
-            printf("Digite a data de início (AAAA-MM-DD): ");
-            fgets(data_inicio, sizeof(data_inicio), stdin);
-            data_inicio[strcspn(data_inicio, "\n")] = '\0';
-
-            printf("Digite a data de fim (AAAA-MM-DD): ");
-            fgets(data_fim, sizeof(data_fim), stdin);
-            data_fim[strcspn(data_fim, "\n")] = '\0';
-
-            // Valida as datas informadas
-            if (!validar_data(data_inicio) || !validar_data(data_fim))
-            {
-                msg_02_opcao_invalida();
-                break;
-            }
-
-            printf("Consultas agendadas entre %s e %s:\n", data_inicio, data_fim);
-            char periodo[32];
-            snprintf(periodo, sizeof(periodo), "%s;%s", data_inicio, data_fim);
-            exibir_arquivo(ARQ_CONSULTAS, "periodo", periodo);
-            msg_rodape_tabela_consultas();
-            break;
-        }
-
-        case 7: // Voltar
             estado_atual = ESTADO_MENU_PRINCIPAL;
             break;
-
+        }
+        case 7: // Encerrar o programa
+        {
+            estado_atual = ESTADO_SAIR;
+            break;
+        }
         default:
             msg_02_opcao_invalida();
             break;
         }
-
     } while (estado_atual == ESTADO_MODULO_RELATORIOS);
 
     return estado_atual;

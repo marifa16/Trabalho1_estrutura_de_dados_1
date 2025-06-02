@@ -8,7 +8,7 @@ void msg_00_informacoes_programa()
     printf("Desenvolvido por:\n"
            "ANDERSON CARLOS DA SILVA MORAIS\n"
            "MARILIA FONSECA ANDRADE\n");
-    printf("Versão 0.7\n");
+    printf("Versão 1.0\n");
 }
 
 void msg_01_agendar_consulta()
@@ -238,7 +238,7 @@ void msg_28_validar_medico()
 void msg_29_sucesso_cadastro_medico()
 {
     printf("===========================\n"
-           "Seu cadastro foi feito com sucesso.\n"
+           "Cadastro de médico realizado com sucesso!\n"
            "===========================\n");
 }
 
@@ -342,13 +342,13 @@ void msg_38_mostrar_modulo_medico()
 void msg_39_mostrar_modulo_relatorios()
 {
     printf("===========================\n"
-           "    Módulo Relatórios      \n"
+           "    Módulo Relatórios\n"
            "===========================\n"
            "[1] - Consultas por paciente informado\n"
            "[2] - Consultas por médico informado\n"
            "[3] - Consulta por especialista\n"
            "[4] - Consultas do dia atual\n"
-           "[5] - Relatório de consultas por especialidade\n"
+           "[5] - Quantidade de consultas por especialidade\n"
            "[6] - Voltar\n"
            "[7] - Sair\n"
            "===========================\n");

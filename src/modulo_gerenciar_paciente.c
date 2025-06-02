@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>                                // Adicione esta linha
 #include "../include/estruturas.h"                // Estruturas utilizadas no código
 #include "../include/mensagens.h"                 // mensagens padronizadas
 #include "../include/modulo_gerenciar_paciente.h" // header do módulo paciente
@@ -31,12 +32,16 @@ Estado tratar_modulo_paciente() // função para tratar as funcionalidades do mo
             // Loop para validar o nome
             do
             {
+                msg_11_nome_paciente();
                 if (!validar_nome_padrao(nome_paciente, sizeof(nome_paciente)))
                 {
                     msg_02_opcao_invalida();
                     continue;
                 }
-                int opcao = ler_opcao_menu(1, 3); // 1=SIM, 2=NÃO, 3=SAIR
+                msg_12_validar_nome_paciente();
+                printf("%s\n", nome_paciente);
+                msg_40_opcoes();
+                int opcao = ler_opcao_menu(1, 3);
                 if (opcao == 1)
                     break;
                 else if (opcao == 2)
@@ -51,12 +56,36 @@ Estado tratar_modulo_paciente() // função para tratar as funcionalidades do mo
             // Loop para validar o CPF
             do
             {
-                if (!validar_cpf(cpf_paciente, sizeof(cpf_paciente)))
+                msg_13_informar_cpf();
+                fgets(cpf_paciente, sizeof(cpf_paciente), stdin);
+                cpf_paciente[strcspn(cpf_paciente, "\n")] = '\0';
+
+                // Validação simples: tamanho e só dígitos
+                if (strlen(cpf_paciente) != 11)
                 {
                     msg_02_opcao_invalida();
                     msg_cpf_invalido();
                     continue;
                 }
+                int valido = 1;
+                for (size_t i = 0; i < strlen(cpf_paciente); i++)
+                {
+                    if (cpf_paciente[i] < '0' || cpf_paciente[i] > '9')
+                    {
+                        valido = 0;
+                        break;
+                    }
+                }
+                if (!valido)
+                {
+                    msg_02_opcao_invalida();
+                    msg_cpf_invalido();
+                    continue;
+                }
+                // Exibe o CPF digitado e pede confirmação
+                printf("CPF informado: %s\n", cpf_paciente);
+                msg_40_opcoes();
+                limpar_buffer();
                 int opcao = ler_opcao_menu(1, 3); // 1=SIM, 2=NÃO, 3=SAIR
                 if (opcao == 1)
                     break;
@@ -72,12 +101,16 @@ Estado tratar_modulo_paciente() // função para tratar as funcionalidades do mo
             // Loop para validar o telefone
             do
             {
+                msg_14_informar_telefone();
                 if (!validar_telefone_padrao(telefone_paciente, sizeof(telefone_paciente)))
                 {
                     msg_02_opcao_invalida();
                     msg_telefone_invalido();
                     continue;
                 }
+                printf("Telefone informado: %s\n", telefone_paciente); // Opcional, para feedback
+                msg_40_opcoes();
+                limpar_buffer();
                 int opcao = ler_opcao_menu(1, 3); // 1=SIM, 2=NÃO, 3=SAIR
                 if (opcao == 1)
                     break;
@@ -118,18 +151,21 @@ Estado tratar_modulo_paciente() // função para tratar as funcionalidades do mo
         }
         case 2: // Exibir Paciente
         {
+            carregar_pacientes_do_arquivo();
             msg_digite_cpf_exibir();
+
             fgets(cpf_paciente, sizeof(cpf_paciente), stdin);
             cpf_paciente[strcspn(cpf_paciente, "\n")] = '\0';
 
-            if (!validar_cpf(cpf_paciente, sizeof(cpf_paciente)))
+            // Valide o CPF já lido
+            if (!cpf_valido(cpf_paciente))
             {
                 msg_02_opcao_invalida();
                 msg_cpf_invalido();
                 break;
             }
 
-            // NOVO: Busca o paciente em memória usando ponteiro
+            // Busca o paciente em memória usando ponteiro
             reg_paciente *p = buscar_paciente_por_cpf(cpf_paciente);
             if (p == NULL)
             {
@@ -163,43 +199,73 @@ Estado tratar_modulo_paciente() // função para tratar as funcionalidades do mo
                 printf("Mensagem concatenada: %s\n", mensagem);
                 printf("Nome copiado: %s\n", nome_copia);
             }
+            limpar_buffer();
             break;
         }
         case 3: // Atualizar Paciente
         {
-            msg_digite_cpf_exibir();
-            // limpar_buffer();
-            // lê uma linha digitada pelo usuário do tamanho de cpf_paciente
+            msg_digite_cpf_atualizar();
+
             fgets(cpf_paciente, sizeof(cpf_paciente), stdin);
-            // strcspn(cpf_paciente, "\n") retorna a posição do primeiro \n (nova linha) encontrado.
-            // Substitui esse caractere por \0 (fim de string), removendo o ENTER digitado pelo usuário.
             cpf_paciente[strcspn(cpf_paciente, "\n")] = '\0';
 
-            // Chama a função validar_cpf para verificar se o CPF digitado é válido (tamanho correto, só números, etc).
-            // Se não for válido, entra no bloco do if.
-            if (!validar_cpf(cpf_paciente, sizeof(cpf_paciente)))
+            if (strlen(cpf_paciente) == 0)
+            {
+                msg_cpf_invalido();
+                break;
+            }
+            if (strlen(cpf_paciente) != 11)
+            {
+                msg_cpf_invalido();
+                break;
+            }
+            int cpf_formato_valido = 1;
+            for (size_t i = 0; i < strlen(cpf_paciente); i++)
+            {
+                if (!isdigit(cpf_paciente[i]))
+                {
+                    cpf_formato_valido = 0;
+                    break;
+                }
+            }
+            if (!cpf_formato_valido)
+            {
+                msg_erro_cpf_numeros();
+                limpar_buffer();
+                break;
+            }
+
+            limpar_buffer();
+            atualizar_paciente(ARQ_PACIENTES, cpf_paciente, valores);
+
+            carregar_pacientes_do_arquivo();
+            break;
+        }
+        case 4: // Deletar Paciente
+        {
+            carregar_pacientes_do_arquivo();
+
+            msg_digite_cpf_deletar();
+            fgets(cpf_paciente, sizeof(cpf_paciente), stdin);
+            cpf_paciente[strcspn(cpf_paciente, "\n")] = '\0';
+
+            // Validação simples: tamanho e só dígitos
+            if (strlen(cpf_paciente) != 11)
             {
                 msg_02_opcao_invalida();
                 msg_cpf_invalido();
                 break;
             }
-
-            atualizar_paciente(ARQ_PACIENTES, cpf_paciente, valores); // função para atualizar o paciente
-            break;
-        }
-        case 4: // Deletar Paciente
-        {
-            msg_digite_cpf_deletar();
-            // limpar_buffer();
-            // lê uma linha digitada pelo usuário do tamanho de cpf_paciente
-            fgets(cpf_paciente, sizeof(cpf_paciente), stdin);
-            // strcspn(cpf_paciente, "\n") retorna a posição do primeiro \n (nova linha) encontrado.
-            // Substitui esse caractere por \0 (fim de string), removendo o ENTER digitado pelo usuário.
-            cpf_paciente[strcspn(cpf_paciente, "\n")] = '\0';
-
-            // Chama a função validar_cpf para verificar se o CPF digitado é válido (tamanho correto, só números, etc).
-            // Se não for válido, entra no bloco do if.
-            if (!validar_cpf(cpf_paciente, sizeof(cpf_paciente)))
+            int valido = 1;
+            for (size_t i = 0; i < strlen(cpf_paciente); i++)
+            {
+                if (cpf_paciente[i] < '0' || cpf_paciente[i] > '9')
+                {
+                    valido = 0;
+                    break;
+                }
+            }
+            if (!valido)
             {
                 msg_02_opcao_invalida();
                 msg_cpf_invalido();
@@ -217,6 +283,8 @@ Estado tratar_modulo_paciente() // função para tratar as funcionalidades do mo
                 msg_paciente_deletado();
             else
                 msg_erro_deletar_paciente();
+
+            limpar_buffer();
             break;
         }
         case 5: // volta ao menu principal

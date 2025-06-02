@@ -41,4 +41,8 @@ int validar_telefone_padrao(char *telefone, size_t tamanho);
 int validar_nome_padrao(char *nome, size_t tamanho);
 void buscar_nome_por_id(const char *arquivo, int id, char *nome, size_t tamanho);
 reg_paciente *buscar_paciente_por_cpf(const char *cpf);
+int cpf_valido(const char *cpf);
+void carregar_pacientes_do_arquivo();
+void obter_data_atual(char *data_atual);
+int buscar_especialidade_medico_por_id(int id_medico_busca, char *especialidade_medico, size_t tam);
 #endif

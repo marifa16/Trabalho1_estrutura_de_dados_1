@@ -7,8 +7,7 @@
 #include <locale.h>
 #include "../include/estruturas.h"
 #include "../include/auxiliar.h"
-#include "../include/mensagens.h" // Adicione esta linha logo após os outros includes
-
+#include "../include/mensagens.h" 
 
 // Cria um arquivo CSV com o cabecalho adequado se ele nao existir
 void criar_arquivo_csv(const char *nome_arquivo)
@@ -96,7 +95,7 @@ void read_row(const char *nome_arquivo, int id)
         tipo = 3;
 
     char linha[512];
-    fgets(linha, sizeof(linha), arquivo); // Cabe�alho
+    fgets(linha, sizeof(linha), arquivo);
 
     while (fgets(linha, sizeof(linha), arquivo))
     {
@@ -173,11 +172,11 @@ int att_row(const char *nome_arquivo, int row, int num_colunas, char *valores[])
     }
 
     char linha[512];
-    int linha_atual = -1; // garante que a contagem das linhas de dados comece em 0, ignorando o cabe�alho.
-    // atualizar ou deletar a "linha 0" (primeira linha de dados), ela ser� corretamente identificada.
-    int atualizou = 0; // a fun��o retorna atualizou para indicar sucesso (1) ou falha (0).
+    int linha_atual = -1; // garante que a contagem das linhas de dados comece em 0, ignorando o cabecalho.
+    // atualizar ou deletar a "linha 0" (primeira linha de dados), ela sera corretamente identificada.
+    int atualizou = 0; // a funcao retorna atualizou para indicar sucesso (1) ou falha (0).
 
-    // Copia o cabe�alho
+    // Copia o cabecalho
     if (fgets(linha, sizeof(linha), arquivo))
     {
         fputs(linha, temp);
@@ -207,7 +206,7 @@ int att_row(const char *nome_arquivo, int row, int num_colunas, char *valores[])
     fclose(arquivo);
     fclose(temp);
 
-    // Substitui o arquivo original pelo tempor�rio
+    // Substitui o arquivo original pelo temporario
     if (remove(nome_arquivo) != 0 || rename("temp.csv", nome_arquivo) != 0)
     {
         msg_erro_abrir_arquivo_nome(nome_arquivo);
@@ -217,7 +216,7 @@ int att_row(const char *nome_arquivo, int row, int num_colunas, char *valores[])
     return atualizou;
 }
 
-// Remove a linha 'row' (come�ando em 0, sem contar o cabe�alho) do arquivo CSV
+// Remove a linha 'row' (comecando em 0, sem contar o cabecalho) do arquivo CSV
 int del_row(const char *nome_arquivo, int row)
 {
     FILE *arquivo = fopen(nome_arquivo, "r");
@@ -239,13 +238,13 @@ int del_row(const char *nome_arquivo, int row)
     int linha_atual = -1;
     int deletou = 0;
 
-    // Copia o cabe�alho
+    // Copia o cabecalho
     if (fgets(linha, sizeof(linha), arquivo))
     {
         fputs(linha, temp);
     }
 
-    // Copia as linhas, pulando a que ser� deletada
+    // Copia as linhas, pulando a que sera deletada
     while (fgets(linha, sizeof(linha), arquivo))
     {
         linha_atual++;
@@ -265,187 +264,178 @@ int del_row(const char *nome_arquivo, int row)
 
     return deletou;
 }
-
-void exibir_arquivo(const char *nome_arquivo, const char *modo, const char *valor)
+int exibir_arquivo(const char *nome_arquivo, const char *modo, const char *valor)
 {
     FILE *arquivo = fopen(nome_arquivo, "r");
     if (!arquivo)
     {
         printf("Erro ao abrir o arquivo '%s'.\n", nome_arquivo);
-        return;
-    }
-
-    int tipo = 0;
-    if (strstr(nome_arquivo, "medico"))
-        tipo = 1;
-    else if (strstr(nome_arquivo, "paciente"))
-        tipo = 2;
-    else if (strstr(nome_arquivo, "consulta"))
-        tipo = 3;
-
-    // Cabe�alhos padronizados
-    if (tipo == 1) // M�dicos
-    {
-        printf("+-----+----------------------------------------------------------------------------------------------------+---------+----------------------------------------------------------------------------------------------------+-------------+\n");
-        printf("| ID  | Nome                                                                                               | CRM     | Especialidade                                                                                      | Telefone    |\n");
-        printf("+-----+----------------------------------------------------------------------------------------------------+---------+----------------------------------------------------------------------------------------------------+-------------+\n");
-    }
-    else if (tipo == 2) // Pacientes
-    {
-        printf("+-----+----------------------------------------------------------------------------------------------------------------------------+-------------+-------------+\n");
-        printf("| ID  | Nome                                                                                                                       | CPF         | Telefone    |\n");
-        printf("+-----+----------------------------------------------------------------------------------------------------------------------------+-------------+-------------+\n");
-    }
-    else if (tipo == 3) // Consultas
-    {
-        printf("+-----+----------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------+---------------------+------------+\n");
-        printf("| ID  | Paciente                                                                                                                   | Medico                                                                                             | Data/Hora           | Status     |\n");
-        printf("+-----+----------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------+---------------------+------------+\n");
+        return 0;
     }
 
     char linha[512];
-    fgets(linha, sizeof(linha), arquivo); // Pula o cabe�alho
+    char id_consulta_csv[16]; // Para armazenar o ID da consulta lido do CSV
+    char id_paciente_csv[16];
+    char id_medico_csv[16];
+    char data_hora_csv[32];
+    char status_csv[16];
+    char nome_paciente[120];
+    char nome_medico[100];
+
+    fgets(linha, sizeof(linha), arquivo); // Pula o cabeçalho
+
+    int encontrou_algo = 0;
 
     while (fgets(linha, sizeof(linha), arquivo))
     {
-        int exibir = 1;
-        if (modo)
+        // Zera as strings para evitar lixo de leituras anteriores
+        memset(id_consulta_csv, 0, sizeof(id_consulta_csv));
+        memset(id_paciente_csv, 0, sizeof(id_paciente_csv));
+        memset(id_medico_csv, 0, sizeof(id_medico_csv));
+        memset(data_hora_csv, 0, sizeof(data_hora_csv));
+        memset(status_csv, 0, sizeof(status_csv));
+        memset(nome_paciente, 0, sizeof(nome_paciente));
+        memset(nome_medico, 0, sizeof(nome_medico));
+
+        if (sscanf(linha, "%15[^,],%15[^,],%15[^,],%31[^,],%15[^\n]",
+                   id_consulta_csv, id_paciente_csv, id_medico_csv, data_hora_csv, status_csv) != 5)
         {
-            char linha_copia[512];
-            strcpy(linha_copia, linha);
-            char *tokens[10];
-            int i = 0;
-            char *token = strtok(linha_copia, ",\n");
-            while (token && i < 10)
-            {
-                tokens[i++] = token;
-                token = strtok(NULL, ",\n");
-            }
-            exibir = 0;
-            if (valor && strcmp(modo, "paciente") == 0 && strcmp(tokens[1], valor) == 0)
-                exibir = 1;
-            else if (valor && strcmp(modo, "medico") == 0 && strcmp(tokens[2], valor) == 0)
-                exibir = 1;
-            else if (valor && strcmp(modo, "especialidade") == 0 && strstr(tokens[4], valor))
-                exibir = 1;
-            else if (strcmp(modo, "dia") == 0 && validar_dia(tokens[3]))
-                exibir = 1;
+            // Se o sscanf falhar em parsear 5 campos, a linha está malformada ou é o final do arquivo com linha em branco.
+            // printf("Erro ao ler linha do arquivo de consultas ou linha malformada: %s", linha);
+            continue;
         }
 
-        if (exibir)
+        int id_pac_int = atoi(id_paciente_csv);
+        int id_med_int = atoi(id_medico_csv);
+
+        buscar_nome_por_id(ARQ_PACIENTES, id_pac_int, nome_paciente, sizeof(nome_paciente));
+        buscar_nome_por_id(ARQ_MEDICOS, id_med_int, nome_medico, sizeof(nome_medico));
+
+        int exibir_linha_atual = 0;
+
+        if (strcmp(modo, "paciente") == 0 && strcmp(id_paciente_csv, valor) == 0)
         {
-            if (tipo == 1)
+            exibir_linha_atual = 1;
+        }
+        else if (strcmp(modo, "medico") == 0 && strcmp(id_medico_csv, valor) == 0)
+        {
+            exibir_linha_atual = 1;
+        }
+        else if (strcmp(modo, "especialidade") == 0)
+        {
+            char especialidade_medico_atual[100];
+            if (buscar_especialidade_medico_por_id(id_med_int, especialidade_medico_atual, sizeof(especialidade_medico_atual)))
             {
-                int id;
-                char nome[100], crm[16], especialidade[100], telefone[16];
-                if (sscanf(linha, "%d,%99[^,],%15[^,],%99[^,],%15[^,\n]", &id, nome, crm, especialidade, telefone) == 5)
-                    printf("| %-3d | %-24s | %-7s | %-24s | %-11s |\n", id, nome, crm, especialidade, telefone);
-            }
-            else if (tipo == 2)
-            {
-                int id;
-                char nome[120], cpf[12], telefone[12];
-                if (sscanf(linha, "%d,%119[^,],%11[^,],%11[^\n]", &id, nome, cpf, telefone) == 4)
-                    printf("| %-4d | %-120s | %-11s | %-11s |\n", id, nome, cpf, telefone);
-            }
-            else if (tipo == 3)
-            {
-                int id, id_pac, id_med;
-                char data_hora[32], status[16];
-                if (sscanf(linha, "%d,%d,%d,%31[^,],%15[^\n]", &id, &id_pac, &id_med, data_hora, status) == 5)
+                // Compara ignorando maiúsculas/minúsculas
+                if (strcasecmp(especialidade_medico_atual, valor) == 0)
                 {
-                    char nome_paciente[122] = ""; // 120 + margem
-                    char nome_medico[102] = "";   // 100 + margem
-                    buscar_nome_paciente_por_id(id_pac, nome_paciente, sizeof(nome_paciente));
-                    buscar_nome_medico_por_id(id_med, nome_medico, sizeof(nome_medico));
-                    printf("| %-4d | %-120s | %-100s | %-19s | %-10s |\n",
-                           id, nome_paciente, nome_medico, data_hora, status);
+                    exibir_linha_atual = 1;
                 }
             }
         }
+        else if (strcmp(modo, "data") == 0 && strstr(data_hora_csv, valor) != NULL) // valor deve ser DD/MM/YYYY
+        {
+            // Para comparar apenas a data, ignorando a hora:
+            char data_consulta_parseada[11]; // Para "DD/MM/YYYY"
+            strncpy(data_consulta_parseada, data_hora_csv, 10);
+            data_consulta_parseada[10] = '\0';
+            if (strcmp(data_consulta_parseada, valor) == 0)
+            {
+                exibir_linha_atual = 1;
+            }
+        }
+
+        if (exibir_linha_atual)
+        {
+            if (!encontrou_algo)
+            { // Imprime o cabeçalho apenas uma vez quando o primeiro item for encontrado
+                msg_cabecalho_tabela_consultas();
+                encontrou_algo = 1;
+            }
+            msg_linha_tabela_consulta(atoi(id_consulta_csv), nome_paciente, nome_medico, data_hora_csv, status_csv);
+        }
     }
 
-    // Linha final
-    if (tipo == 1)
-        printf("+-----+----------------------------------------------------------------------------------------------------+---------+----------------------------------------------------------------------------------------------------+-------------+\n");
-    else if (tipo == 2)
-        printf("+-----+----------------------------------------------------------------------------------------------------------------------------+-------------+-------------+\n");
-    else if (tipo == 3)
-        printf("+-----+----------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------+---------------------+------------+\n");
+    if (encontrou_algo)
+    {
+        msg_rodape_tabela_consultas();
+    }
+    else
+    {
+        printf("Nenhuma consulta encontrada para os critérios informados.\n");
+    }
 
     fclose(arquivo);
+    return encontrou_algo; // Retorna 1 se encontrou algo, 0 caso contrário
 }
 
 void relatorio_contagem_consultas_por_especialidade()
 {
-    const char *especialidades[] = {
-        "CLINICO_GERAL",
-        "PEDIATRA",
-        "CARDIOLOGISTA",
-        "DERMATOLOGISTA",
-        "PSIQUIATRA"};
-    int contagem[5] = {0, 0, 0, 0, 0};
+    // Nomes das especialidades para exibição e comparação.
+    // A ordem DEVE corresponder ao enum Especialidade em estruturas.h
+    const char *nomes_especialidades_str[] = {
+        "CLINICO_GERAL",  // Corresponde a CLINICO_GERAL = 0
+        "PEDIATRA",       // Corresponde a PEDIATRA = 1
+        "CARDIOLOGISTA",  // Corresponde a CARDIOLOGISTA = 2
+        "DERMATOLOGISTA", // Corresponde a DERMATOLOGISTA = 3
+        "PSIQUIATRA"      // Corresponde a PSIQUIATRA = 4
+    };
+    // TOTAL_ESPECIALIDADES deve ser 5, conforme definido em estruturas.h
+    int contagem[TOTAL_ESPECIALIDADES] = {0}; // Inicializa todas as contagens com 0
 
-    // Percorre todas as consultas
-    FILE *arq_cons = fopen(ARQ_CONSULTAS, "r");
-    if (!arq_cons)
+    FILE *arq_consultas = fopen(ARQ_CONSULTAS, "r");
+    if (!arq_consultas)
     {
-        printf("Erro ao abrir o arquivo de consultas.\n");
+        msg_erro_abrir_arquivo_nome(ARQ_CONSULTAS);
         return;
     }
-    char linha[512];
-    fgets(linha, sizeof(linha), arq_cons); // pula cabe�alho
 
-    while (fgets(linha, sizeof(linha), arq_cons))
+    char linha_consulta[512];
+    fgets(linha_consulta, sizeof(linha_consulta), arq_consultas); // Pula o cabeçalho do arquivo de consultas
+
+    while (fgets(linha_consulta, sizeof(linha_consulta), arq_consultas))
     {
-        int id_consulta, id_paciente, id_medico;
-        char data_hora[32], status[16];
-        if (sscanf(linha, "%d,%d,%d,%31[^,],%15[^\n]", &id_consulta, &id_paciente, &id_medico, data_hora, status) == 5)
+        char id_consulta_str[16], id_paciente_str[16], id_medico_str[16];
+        char data_hora_str[32], status_str[16];
+
+        if (sscanf(linha_consulta, "%15[^,],%15[^,],%15[^,],%31[^,],%15[^\n]",
+                   id_consulta_str, id_paciente_str, id_medico_str, data_hora_str, status_str) == 5)
         {
-            // Descobre a especialidade do m�dico
-            FILE *arq_med = fopen(ARQ_MEDICOS, "r");
-            if (!arq_med)
-                continue;
-            char linha_med[512];
-            fgets(linha_med, sizeof(linha_med), arq_med); // pula cabe�alho
-            while (fgets(linha_med, sizeof(linha_med), arq_med))
+            int id_medico = atoi(id_medico_str);
+            char especialidade_medico_str[100]; // Buffer para armazenar a especialidade do médico
+
+            // Busca a especialidade do médico pelo ID
+            // buscar_especialidade_medico_por_id deve ler o arquivo de médicos,
+            // encontrar o médico pelo id_medico e preencher especialidade_medico_str.
+            if (buscar_especialidade_medico_por_id(id_medico, especialidade_medico_str, sizeof(especialidade_medico_str)))
             {
-                int id_med;
-                char nome[100], crm[16], especialidade[100], telefone[16];
-                if (sscanf(linha_med, "%d,%99[^,],%15[^,],%99[^,],%15[^\n]", &id_med, nome, crm, especialidade, telefone) == 5)
+                // Compara a especialidade encontrada com a lista de especialidades conhecidas
+                for (int i = 0; i < TOTAL_ESPECIALIDADES; i++)
                 {
-                    if (id_med == id_medico)
+                    // Comparação case-insensitive é mais robusta se os dados no CSV puderem variar
+                    if (strcasecmp(especialidade_medico_str, nomes_especialidades_str[i]) == 0)
                     {
-                        // Conta para a especialidade correta
-                        char espec[100];
-                        if (buscar_especialidade_medico_por_id(id_medico, espec, sizeof(espec)))
-                        {
-                            for (int i = 0; i < 5; i++)
-                            {
-                                if (strcasecmp(espec, especialidades[i]) == 0)
-                                {
-                                    contagem[i]++;
-                                    break;
-                                }
-                            }
-                        }
-                        break;
+                        contagem[i]++; // Incrementa a contagem para a especialidade correspondente
+                        break;         // Sai do loop interno, pois a especialidade foi encontrada
                     }
                 }
             }
-            fclose(arq_med);
+            // else {
+            //     printf("DEBUG: Não foi possível buscar especialidade para o médico ID %d\n", id_medico);
+            // }
         }
     }
-    fclose(arq_cons);
+    fclose(arq_consultas);
 
-    // Exibe o relat�rio
-    printf("\nRelatorio de Consultas por Especialidade\n");
-    printf("+-------------------+---------------------+\n");
+    // Exibe o relatório formatado
+    printf("\nRelatório de Consultas por Especialidade\n");
+    printf("+-------------------+-------------------------+\n");
     printf("| Especialidade     | Quantidade de Consultas |\n");
-    printf("+-------------------+---------------------+\n");
-    for (int i = 0; i < 5; i++)
+    printf("+-------------------+-------------------------+\n");
+    for (int i = 0; i < TOTAL_ESPECIALIDADES; i++)
     {
-        printf("| %-17s | %-20d |\n", especialidades[i], contagem[i]);
+        // Usa os nomes do array nomes_especialidades_str para exibição
+        printf("| %-17s | %-23d |\n", nomes_especialidades_str[i], contagem[i]);
     }
-    printf("+-------------------+---------------------+\n");
+    printf("+-------------------+-------------------------+\n");
 }

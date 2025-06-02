@@ -5,5 +5,5 @@
 #include "modulo_gerenciar_paciente.h"
 
 Estado tratar_modulo_relatorios();
-
+void exibir_consultas(char *linha);
 #endif

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <locale.h>
 #include "../include/mensagens.h"                 // Inclui o cabeçalho de mensagens
 #include "../include/estruturas.h"                // Inclui o cabeçalho das estruturas

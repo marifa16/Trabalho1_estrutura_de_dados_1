@@ -2,6 +2,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "../include/estruturas.h"
 #include "../include/modulo_consulta.h"
 #include "../include/mensagens.h"
@@ -10,22 +11,21 @@
 #include "../include/modulo_gerenciar_paciente.h"
 #include "../include/files_manager.h"
 
-// Vetor global
-reg_consulta *consultas = NULL; // Ponteiro para vetor consultas
-int total_consultas = 0;        // Contador
-
-const char *especialidade_string(Especialidade especialidade);
-
 Estado tratar_modulo_consulta()
 {
-    Estado estado_atual = ESTADO_MENU_CONSULTA; // Inicializa o estado como ESTADO_MENU_CONSULTA
+    Estado estado_atual = ESTADO_MENU_CONSULTA;
     int escolha = 0;
 
     do
     {
-        // Exibe o menu de consultas
         msg_01_agendar_consulta();
-        escolha = ler_opcao_menu(1, 4); // conforme o menu de consultas
+        escolha = ler_opcao_menu(1, 4);
+
+        if (escolha == -1)
+        {
+            msg_05_retornando_menu();
+            continue;
+        }
 
         switch (escolha)
         {
@@ -36,7 +36,12 @@ Estado tratar_modulo_consulta()
             fgets(cpf_paciente, sizeof(cpf_paciente), stdin);
             cpf_paciente[strcspn(cpf_paciente, "\n")] = '\0';
 
-            // Valida paciente
+            if (strlen(cpf_paciente) != 11)
+            {
+                msg_cpf_invalido();
+                break;
+            }
+
             int id_paciente = get_id(ARQ_PACIENTES, 2, cpf_paciente);
             if (id_paciente < 0)
             {
@@ -44,63 +49,73 @@ Estado tratar_modulo_consulta()
                 break;
             }
 
-            // Carrega médicos do arquivo antes de listar
             carregar_medicos_do_arquivo();
 
-            // Lista médicos
             msg_42_exiber_medicos_disponiveis();
             if (total_medicos == 0)
             {
                 printf("Nenhum médico cadastrado no sistema.\n");
                 break;
             }
+            // Substituído por uma função mais robusta se disponível, como exibir_lista_medicos()
             for (int i = 0; i < total_medicos; i++)
             {
                 printf("[%d] - %s (CRM: %s, Especialidade: %s)\n",
-                       i + 1,
+                       medicos[i].id_medico,
                        medicos[i].nome,
                        medicos[i].crm,
                        especialidade_string(medicos[i].especialidade_medico));
             }
+            printf("===========================\n");
 
-            // Escolher médico
-            int escolha_medico = 0;
+            int escolha_id_medico = 0;
             do
             {
-                msg_06_escolher_medico();
-                printf("[0] - Sair\n");
+                printf("Digite o ID do médico para agendar (ou 0 para sair): ");
                 char escolha_medico_str[10];
-                limpar_buffer();
+                limpar_buffer(); // Limpa antes de ler ID do médico
                 fgets(escolha_medico_str, sizeof(escolha_medico_str), stdin);
                 escolha_medico_str[strcspn(escolha_medico_str, "\n")] = '\0';
 
-                // DEBUG: Mostra o que foi lido
-                // printf("DEBUG: escolha_medico_str = '%s'\n", escolha_medico_str);
-
-                // Valida se é um número e se está no intervalo de médicos cadastrados
-                if (sscanf(escolha_medico_str, "%d", &escolha_medico) != 1 ||
-                    escolha_medico < 0 || escolha_medico > total_medicos)
+                if (sscanf(escolha_medico_str, "%d", &escolha_id_medico) != 1)
                 {
                     msg_02_opcao_invalida();
                     continue;
                 }
-                if (escolha_medico == 0)
+                if (escolha_id_medico == 0)
                 {
                     msg_05_retornando_menu();
-                    return estado_atual; // Ou outro fluxo para sair do agendamento
+                    break;
+                }
+
+                int medico_valido = 0;
+                for (int i = 0; i < total_medicos; ++i)
+                {
+                    if (medicos[i].id_medico == escolha_id_medico)
+                    {
+                        medico_valido = 1;
+                        break;
+                    }
+                }
+                if (!medico_valido)
+                {
+                    msg_02_opcao_invalida();
+                    printf("ID de médico não encontrado.\n");
+                    continue;
                 }
                 break;
             } while (1);
 
-            int id_medico = medicos[escolha_medico - 1].id_medico;
+            if (escolha_id_medico == 0)
+                break;
 
-            // Escolher data
             struct tm data_consulta = {0};
             int dia, mes, ano = 2025;
             do
             {
-                printf("Digite o mês desejado (1-12):\n");
+                printf("Digite o mês desejado (1-12) para %d:\n", ano);
                 char mes_str[10];
+                limpar_buffer(); // Limpa antes de ler o mês
                 fgets(mes_str, sizeof(mes_str), stdin);
                 mes_str[strcspn(mes_str, "\n")] = '\0';
                 if (sscanf(mes_str, "%d", &mes) != 1 || !validar_mes(mes))
@@ -108,8 +123,10 @@ Estado tratar_modulo_consulta()
                     msg_02_opcao_invalida();
                     continue;
                 }
-                printf("Digite o dia desejado:\n");
+
+                printf("Digite o dia desejado para %02d/%d:\n", mes, ano);
                 char dia_str[10];
+                limpar_buffer(); // Limpa antes de ler o dia
                 fgets(dia_str, sizeof(dia_str), stdin);
                 dia_str[strcspn(dia_str, "\n")] = '\0';
                 if (sscanf(dia_str, "%d", &dia) != 1 || !validar_dia2(dia, mes, ano))
@@ -120,13 +137,15 @@ Estado tratar_modulo_consulta()
                 data_consulta.tm_year = ano - 1900;
                 data_consulta.tm_mon = mes - 1;
                 data_consulta.tm_mday = dia;
-                if (mktime(&data_consulta) == -1)
+                time_t t = mktime(&data_consulta);
+                if (t == -1)
                 {
                     msg_02_opcao_invalida();
                     printf("Data inválida. Por favor, insira uma data válida.\n");
                     continue;
                 }
-                if (data_consulta.tm_wday == 0)
+                struct tm *data_verificada = localtime(&t);
+                if (data_verificada->tm_wday == 0)
                 {
                     printf("Não há atendimentos aos domingos. Escolha outra data.\n");
                     continue;
@@ -134,28 +153,27 @@ Estado tratar_modulo_consulta()
                 break;
             } while (1);
 
-            // Lista horários disponíveis (8h às 16h)
             int horario_ocupado[9] = {0};
-            FILE *arq_cons = fopen("data/registro_consultas.csv", "r");
+            FILE *arq_cons = fopen(ARQ_CONSULTAS, "r");
             if (arq_cons)
             {
                 char linha[512];
-                fgets(linha, sizeof(linha), arq_cons); // pula cabeçalho
+                fgets(linha, sizeof(linha), arq_cons);
                 while (fgets(linha, sizeof(linha), arq_cons))
                 {
-                    int id_cons, id_pac, id_med;
-                    char data_hora[32], status[16];
-                    if (sscanf(linha, "%d,%d,%d,%31[^,],%15[^\n]", &id_cons, &id_pac, &id_med, data_hora, status) == 5)
+                    int id_cons_csv, id_pac_csv, id_med_csv;
+                    char data_hora_csv[32], status_csv[16];
+                    if (sscanf(linha, "%d,%d,%d,%31[^,],%15[^\n]", &id_cons_csv, &id_pac_csv, &id_med_csv, data_hora_csv, status_csv) == 5)
                     {
-                        if (id_med == id_medico)
+                        if (id_med_csv == escolha_id_medico && strcmp(status_csv, "AGENDADA") == 0)
                         {
-                            int d, m, a, h, min;
-                            if (sscanf(data_hora, "%d/%d/%d %d:%d", &d, &m, &a, &h, &min) == 5)
+                            int d_csv, m_csv, a_csv, h_csv, min_csv;
+                            if (sscanf(data_hora_csv, "%d/%d/%d %d:%d", &d_csv, &m_csv, &a_csv, &h_csv, &min_csv) == 5)
                             {
-                                if (d == dia && m == mes && a == ano)
+                                if (d_csv == dia && m_csv == mes && a_csv == ano)
                                 {
-                                    if (h >= 8 && h <= 16)
-                                        horario_ocupado[h - 8] = 1;
+                                    if (h_csv >= 8 && h_csv <= 16)
+                                        horario_ocupado[h_csv - 8] = 1;
                                 }
                             }
                         }
@@ -180,43 +198,76 @@ Estado tratar_modulo_consulta()
                 break;
             }
 
-            // Escolher horário
-            int escolha_horario = 0;
+            int escolha_horario_idx = 0; // Renomeado para evitar confusão com 'escolha_horario' usado como hora final
+            int hora_final_consulta = -1;
             do
             {
-                printf("Escolha o horário (1-9): ");
+                printf("Escolha o índice do horário (1-%d, ou 0 para sair): ", algum_livre > 0 ? 9 : 0); // Ajusta o máx se necessário
                 char horario_str[10];
+                limpar_buffer(); // Limpa antes de ler o índice do horário
                 fgets(horario_str, sizeof(horario_str), stdin);
                 horario_str[strcspn(horario_str, "\n")] = '\0';
-                if (sscanf(horario_str, "%d", &escolha_horario) != 1 || escolha_horario < 1 || escolha_horario > 9 || horario_ocupado[escolha_horario - 1])
+
+                if (sscanf(horario_str, "%d", &escolha_horario_idx) != 1)
                 {
                     msg_02_opcao_invalida();
                     continue;
                 }
+                if (escolha_horario_idx == 0)
+                {
+                    msg_05_retornando_menu();
+                    hora_final_consulta = 0; // Sinaliza para sair
+                    break;
+                }
+                if (escolha_horario_idx < 1 || escolha_horario_idx > 9 || horario_ocupado[escolha_horario_idx - 1])
+                {
+                    msg_02_opcao_invalida();
+                    printf("Horário inválido ou já ocupado.\n");
+                    continue;
+                }
+                hora_final_consulta = 8 + escolha_horario_idx - 1;
                 break;
             } while (1);
 
-            // Monta data/hora da consulta
-            char data_hora[32];
-            snprintf(data_hora, sizeof(data_hora), "%02d/%02d/%d %02d:00", dia, mes, ano, 8 + escolha_horario - 1);
+            if (hora_final_consulta == 0 || hora_final_consulta == -1)
+                break;
 
-            // Adiciona consulta no arquivo
+            char data_hora[32];
+            snprintf(data_hora, sizeof(data_hora), "%02d/%02d/%d %02d:00", dia, mes, ano, hora_final_consulta);
+
             char id_paciente_str[16], id_medico_str[16], status[16];
             snprintf(id_paciente_str, sizeof(id_paciente_str), "%d", id_paciente);
-            snprintf(id_medico_str, sizeof(id_medico_str), "%d", id_medico);
+            snprintf(id_medico_str, sizeof(id_medico_str), "%d", escolha_id_medico);
             strcpy(status, "AGENDADA");
 
-            char *valores[4];
-            valores[0] = id_paciente_str;
-            valores[1] = id_medico_str;
-            valores[2] = data_hora;
-            valores[3] = status;
+            char *valores_consulta[4];
+            valores_consulta[0] = id_paciente_str;
+            valores_consulta[1] = id_medico_str;
+            valores_consulta[2] = data_hora;
+            valores_consulta[3] = status;
 
-            add_row(ARQ_CONSULTAS, 5, valores);
-
-            msg_08_sucesso_agendamento();
-            printf("Consulta marcada para %02d/%02d/%d às %02d:00 com o médico %s.\n",
-                   dia, mes, ano, 8 + escolha_horario - 1, medicos[escolha_medico - 1].nome);
+            // Ajuste para add_row: select_col deve ser o número de colunas de DADOS + 1 (para o ID gerado)
+            // Se add_row espera 4 valores de dados, e gera o ID, select_col deve ser 5.
+            if (add_row(ARQ_CONSULTAS, 5, valores_consulta))
+            {
+                msg_08_sucesso_agendamento();
+                char nome_medico_agendado[100] = "N/D";
+                for (int i = 0; i < total_medicos; ++i)
+                {
+                    if (medicos[i].id_medico == escolha_id_medico)
+                    {
+                        strncpy(nome_medico_agendado, medicos[i].nome, sizeof(nome_medico_agendado) - 1);
+                        nome_medico_agendado[sizeof(nome_medico_agendado) - 1] = '\0';
+                        break;
+                    }
+                }
+                printf("Consulta marcada para %s com o médico %s.\n", data_hora, nome_medico_agendado);
+            }
+            else
+            {
+                printf("Erro ao salvar a consulta.\n");
+            }
+            limpar_buffer(); // Limpa o buffer no final do case
             break;
         }
 
@@ -227,216 +278,249 @@ Estado tratar_modulo_consulta()
             {
                 printf("===========================\n");
                 printf("Você está acessando como:\n[1] - Médico\n[2] - Paciente\n[3] - Sair\n");
-                char tipo_str[10];
-                fgets(tipo_str, sizeof(tipo_str), stdin);
-                tipo_str[strcspn(tipo_str, "\n")] = '\0';
-                if (sscanf(tipo_str, "%d", &tipo_usuario) != 1 || tipo_usuario < 1 || tipo_usuario > 3)
+                tipo_usuario = ler_opcao_menu(1, 3);
+                if (tipo_usuario == -1)
                 {
-                    msg_02_opcao_invalida();
-                    continue;
+                    msg_05_retornando_menu();
+                    limpar_buffer();
+                    break;
                 }
                 break;
-            } while (1);
+            } while (tipo_usuario == -1); // Repete se ler_opcao_menu falhou
 
-            if (tipo_usuario == 3)
+            if (tipo_usuario == 3 || tipo_usuario == -1)
             {
-                msg_05_retornando_menu();
-                return ESTADO_MENU_CONSULTA;
+                if (tipo_usuario == 3)
+                    msg_05_retornando_menu();
+
+                limpar_buffer(); // Limpa antes de sair do case
+                break;
             }
 
-            int id_usuario = -1;
+            int id_usuario_sistema = -1;
             char id_usuario_str[16];
+
             if (tipo_usuario == 1)
             {
-                // Médico
                 char crm[16];
                 msg_30_crm();
                 fgets(crm, sizeof(crm), stdin);
                 crm[strcspn(crm, "\n")] = '\0';
-                id_usuario = get_id("data/registro_medicos.csv", 2, crm);
-                if (id_usuario < 0)
+                id_usuario_sistema = get_id(ARQ_MEDICOS, 2, crm);
+                if (id_usuario_sistema < 0)
                 {
                     msg_medico_nao_encontrado(crm);
-                    return ESTADO_MENU_CONSULTA;
+                    break;
                 }
-                snprintf(id_usuario_str, sizeof(id_usuario_str), "%d", id_usuario);
+                snprintf(id_usuario_str, sizeof(id_usuario_str), "%d", id_usuario_sistema);
                 printf("Consultas do médico (CRM: %s):\n", crm);
-                exibir_arquivo("data/registro_consultas.csv", "medico", id_usuario_str);
+                exibir_arquivo(ARQ_CONSULTAS, "medico", id_usuario_str);
             }
             else if (tipo_usuario == 2)
             {
-                // Paciente
                 char cpf[12];
                 msg_13_informar_cpf();
                 fgets(cpf, sizeof(cpf), stdin);
                 cpf[strcspn(cpf, "\n")] = '\0';
-                id_usuario = get_id("data/registro_pacientes.csv", 2, cpf);
-                if (id_usuario < 0)
+                id_usuario_sistema = get_id(ARQ_PACIENTES, 2, cpf);
+                if (id_usuario_sistema < 0)
                 {
                     msg_paciente_nao_encontrado(cpf);
-                    return ESTADO_MENU_CONSULTA;
+                    break;
                 }
-                snprintf(id_usuario_str, sizeof(id_usuario_str), "%d", id_usuario);
+                snprintf(id_usuario_str, sizeof(id_usuario_str), "%d", id_usuario_sistema);
                 printf("Consultas do paciente (CPF: %s):\n", cpf);
-                exibir_arquivo("data/registro_consultas.csv", "paciente", id_usuario_str);
+                exibir_arquivo(ARQ_CONSULTAS, "paciente", id_usuario_str);
             }
 
-            // Pergunta qual consulta será desmarcada
-            int id_consulta = -1;
+            if (id_usuario_sistema < 0)
+            { // Se não encontrou usuário ou saiu antes
+                break;
+            }
+
+            int id_consulta_cancelar = -1;
+            int linha_para_atualizar = -1;
             do
             {
                 printf("Digite o ID da consulta que deseja cancelar (ou 0 para sair): ");
                 char id_consulta_str[16];
+
                 fgets(id_consulta_str, sizeof(id_consulta_str), stdin);
                 id_consulta_str[strcspn(id_consulta_str, "\n")] = '\0';
-                if (sscanf(id_consulta_str, "%d", &id_consulta) != 1)
+
+                if (strlen(id_consulta_str) == 0)
+                { // Se o usuário apenas pressionar Enter
+                    msg_02_opcao_invalida();
+                    continue;
+                }
+                if (sscanf(id_consulta_str, "%d", &id_consulta_cancelar) != 1)
                 {
                     msg_02_opcao_invalida();
                     continue;
                 }
-                if (id_consulta == 0)
+                if (id_consulta_cancelar == 0)
                 {
                     msg_05_retornando_menu();
-                    return ESTADO_MENU_CONSULTA;
+                    break;
                 }
 
-                // Verifica se a consulta existe e pertence ao usuário
-                FILE *arq = fopen("data/registro_consultas.csv", "r");
+                FILE *arq = fopen(ARQ_CONSULTAS, "r");
                 if (!arq)
                 {
-                    msg_erro_abrir_arquivo();
-                    return ESTADO_MENU_CONSULTA;
+                    msg_erro_abrir_arquivo_nome(ARQ_CONSULTAS);
+                    break;
                 }
-                char linha[512];
-                fgets(linha, sizeof(linha), arq); // pula cabeçalho
-                int achou = 0;
-                int linha_atual = 0;
-                while (fgets(linha, sizeof(linha), arq))
+                char linha_csv[512];
+                fgets(linha_csv, sizeof(linha_csv), arq);
+
+                int achou_consulta_valida = 0;
+                int contador_linha_dados = 0;
+                char csv_id_consulta_atual[16], csv_id_pac_atual[16], csv_id_med_atual[16], csv_status_atual[16];
+
+                while (fgets(linha_csv, sizeof(linha_csv), arq))
                 {
-                    int id, id_pac, id_med;
-                    char data_hora[32], status[16];
-                    if (sscanf(linha, "%d,%d,%d,%31[^,],%15[^\n]", &id, &id_pac, &id_med, data_hora, status) == 5)
+                    // Zera as strings para evitar lixo de leituras anteriores
+                    memset(csv_id_consulta_atual, 0, sizeof(csv_id_consulta_atual));
+                    memset(csv_id_pac_atual, 0, sizeof(csv_id_pac_atual));
+                    memset(csv_id_med_atual, 0, sizeof(csv_id_med_atual));
+                    memset(csv_status_atual, 0, sizeof(csv_status_atual));
+
+                    if (sscanf(linha_csv, "%15[^,],%15[^,],%15[^,],%*[^,],%15[^\n]",
+                               csv_id_consulta_atual, csv_id_pac_atual, csv_id_med_atual, csv_status_atual) != 4)
                     {
-                        if (id == id_consulta)
+                        // Se não conseguiu ler os 4 primeiros campos, pode ser uma linha mal formatada ou em branco no final.
+                        // O status é o quinto, então o sscanf acima está pegando o status.
+                        // Para pegar o status corretamente:
+                        sscanf(linha_csv, "%*[^,],%*[^,],%*[^,],%*[^,],%15[^\n]", csv_status_atual); // Re-ler só o status se necessário
+                    }
+                    // Re-ler a linha completa para pegar todos os 5 campos para verificação
+                    if (sscanf(linha_csv, "%15[^,],%15[^,],%15[^,],%*[^,],%15[^\n]",
+                               csv_id_consulta_atual, csv_id_pac_atual, csv_id_med_atual, csv_status_atual) != 4)
+                    {
+                        // Se o sscanf falhar em parsear 4 campos (id_consulta, id_paciente, id_medico, status), a linha está malformada.
+                        // O formato é id_consulta,id_paciente,id_medico,data_hora,status
+                        // Então precisamos de 5 especificadores de formato para sscanf.
+                        if (sscanf(linha_csv, "%15[^,],%15[^,],%15[^,],%*31[^,],%15[^\n]", // Ignora data_hora
+                                   csv_id_consulta_atual, csv_id_pac_atual, csv_id_med_atual, csv_status_atual) != 4)
                         {
-                            if ((tipo_usuario == 1 && id_med == id_usuario) ||
-                                (tipo_usuario == 2 && id_pac == id_usuario))
-                            {
-                                achou = 1;
-                                break;
-                            }
+                            continue; // Pula linha mal formada
                         }
                     }
-                    linha_atual++;
+
+                    if (atoi(csv_id_consulta_atual) == id_consulta_cancelar)
+                    {
+                        if ((tipo_usuario == 1 && strcmp(csv_id_med_atual, id_usuario_str) == 0) ||
+                            (tipo_usuario == 2 && strcmp(csv_id_pac_atual, id_usuario_str) == 0))
+                        {
+                            if (strcmp(csv_status_atual, "CANCELADA") == 0)
+                            {
+                                printf("Esta consulta (ID: %d) já está cancelada.\n", id_consulta_cancelar);
+                                achou_consulta_valida = -1;
+                            }
+                            else
+                            {
+                                achou_consulta_valida = 1;
+                            }
+                            linha_para_atualizar = contador_linha_dados;
+                            break;
+                        }
+                    }
+                    contador_linha_dados++;
                 }
                 fclose(arq);
 
-                if (!achou)
+                if (achou_consulta_valida == 0)
                 {
-                    printf("Consulta não encontrada ou não pertence ao usuário informado.\n");
-                    exibir_arquivo("data/registro_consultas.csv", tipo_usuario == 1 ? "medico" : "paciente", id_usuario_str);
+                    printf("ID da consulta inválido ou não pertence a você. Tente novamente.\n");
+                    if (tipo_usuario == 1)
+                        exibir_arquivo(ARQ_CONSULTAS, "medico", id_usuario_str);
+                    else
+                        exibir_arquivo(ARQ_CONSULTAS, "paciente", id_usuario_str);
+                    continue;
+                }
+                if (achou_consulta_valida == -1)
+                {
                     continue;
                 }
 
-                // Confirmação do cancelamento
-                printf("Deseja realmente cancelar esta consulta?\n[1] - SIM\n[2] - NÃO\n[3] - SAIR\n");
-                char resp[10];
-                fgets(resp, sizeof(resp), stdin);
-                int resp_int = atoi(resp);
-                if (resp_int == 1)
-                {
-                    // Atualiza status para CANCELADA
-                    // Lê a linha da consulta para montar os valores
-                    FILE *arq2 = fopen("data/registro_consultas.csv", "r");
-                    if (!arq2)
-                    {
-                        msg_erro_abrir_arquivo();
-                        return ESTADO_MENU_CONSULTA;
-                    }
-                    fgets(linha, sizeof(linha), arq2); // pula cabeçalho
-                    int linha_idx = 0;
-                    char linha_csv[512];
-                    while (fgets(linha_csv, sizeof(linha_csv), arq2))
-                    {
-                        if (linha_idx == linha_atual)
-                            break;
-                        linha_idx++;
-                    }
-                    fclose(arq2);
+                printf("Deseja realmente cancelar a consulta ID %d?\n[1] - SIM\n[2] - NÃO\n[3] - SAIR\n", id_consulta_cancelar);
+                int resp_confirmacao = ler_opcao_menu(1, 3);
 
-                    // Extrai os campos da linha
-                    char id_str[8], id_pac_str[8], id_med_str[8], data_hora[32], status[16];
-                    char *token = strtok(linha_csv, ",\n");
-                    int i = 0;
-                    while (token && i < 5)
+                if (resp_confirmacao == 1)
+                {
+                    FILE *arq_leitura_att = fopen(ARQ_CONSULTAS, "r");
+                    if (!arq_leitura_att)
                     {
-                        switch (i)
+                        msg_erro_abrir_arquivo_nome(ARQ_CONSULTAS);
+                        break;
+                    }
+                    char linha_original_att[512];
+                    char val_id_cons[16], val_id_pac[16], val_id_med[16], val_data_hora[32], val_status_antigo[16];
+
+                    fgets(linha_original_att, sizeof(linha_original_att), arq_leitura_att);
+                    for (int k = 0; k <= linha_para_atualizar; ++k)
+                    {
+                        if (fgets(linha_original_att, sizeof(linha_original_att), arq_leitura_att) == NULL)
                         {
-                        case 0:
-                            strncpy(id_str, token, sizeof(id_str));
-                            id_str[sizeof(id_str) - 1] = '\0';
-                            break;
-                        case 1:
-                            strncpy(id_pac_str, token, sizeof(id_pac_str));
-                            id_pac_str[sizeof(id_pac_str) - 1] = '\0';
-                            break;
-                        case 2:
-                            strncpy(id_med_str, token, sizeof(id_med_str));
-                            id_med_str[sizeof(id_med_str) - 1] = '\0';
-                            break;
-                        case 3:
-                            strncpy(data_hora, token, sizeof(data_hora));
-                            data_hora[sizeof(data_hora) - 1] = '\0';
-                            break;
-                        case 4:
-                            strncpy(status, token, sizeof(status));
-                            status[sizeof(status) - 1] = '\0';
+                            strcpy(val_id_cons, "ERRO");
                             break;
                         }
-                        token = strtok(NULL, ",\n");
-                        i++;
                     }
-                    strcpy(status, "CANCELADA");
-                    char *valores[5];
-                    valores[0] = id_str;
-                    valores[1] = id_pac_str;
-                    valores[2] = id_med_str;
-                    valores[3] = data_hora;
-                    valores[4] = status;
-                    att_row("data/registro_consultas.csv", linha_atual, 5, valores);
-                    printf("Consulta cancelada com sucesso!\n");
+                    fclose(arq_leitura_att);
+
+                    if (strcmp(val_id_cons, "ERRO") != 0 && sscanf(linha_original_att, "%[^,],%[^,],%[^,],%[^,],%s", val_id_cons, val_id_pac, val_id_med, val_data_hora, val_status_antigo) == 5)
+                    {
+                        char *valores_atualizados[5];
+                        valores_atualizados[0] = val_id_cons;
+                        valores_atualizados[1] = val_id_pac;
+                        valores_atualizados[2] = val_id_med;
+                        valores_atualizados[3] = val_data_hora;
+                        valores_atualizados[4] = "CANCELADA";
+
+                        // att_row espera (nome_arquivo, linha_a_atualizar (0-indexed), num_colunas_total, array_valores)
+                        // O array_valores deve conter todos os campos, incluindo o ID.
+                        if (att_row(ARQ_CONSULTAS, linha_para_atualizar, 5, valores_atualizados))
+                        {
+                            printf("Consulta ID %d cancelada com sucesso!\n", id_consulta_cancelar);
+                        }
+                        else
+                        {
+                            printf("Erro ao atualizar o status da consulta ID %d.\n", id_consulta_cancelar);
+                        }
+                    }
+                    else
+                    {
+                        printf("Erro ao ler os dados da consulta para cancelamento.\n");
+                    }
                     break;
                 }
-                else if (resp_int == 2)
+                else if (resp_confirmacao == 2)
                 {
-                    exibir_arquivo("data/registro_consultas.csv", tipo_usuario == 1 ? "medico" : "paciente", id_usuario_str);
+                    printf("Cancelamento da consulta ID %d abortado.\n", id_consulta_cancelar);
+                    if (tipo_usuario == 1)
+                        exibir_arquivo(ARQ_CONSULTAS, "medico", id_usuario_str);
+                    else
+                        exibir_arquivo(ARQ_CONSULTAS, "paciente", id_usuario_str);
                     continue;
                 }
-                else if (resp_int == 3)
+                else if (resp_confirmacao == 3 || resp_confirmacao == -1)
                 {
                     msg_05_retornando_menu();
-                    return ESTADO_MENU_CONSULTA;
+                    break;
                 }
-                else
-                {
-                    msg_02_opcao_invalida();
-                    continue;
-                }
-            } while (1);
-
+            } while (id_consulta_cancelar != 0);
             break;
         }
 
-        case 3: // Retornar ao menu principal
+        case 3:
             estado_atual = ESTADO_MENU_PRINCIPAL;
             break;
 
-        case 4: // Sair do programa
+        case 4:
             estado_atual = ESTADO_SAIR;
             break;
 
         default:
-            msg_02_opcao_invalida();
             break;
         }
     } while (estado_atual == ESTADO_MENU_CONSULTA);
