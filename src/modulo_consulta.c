@@ -104,6 +104,8 @@ Estado tratar_modulo_consulta()
                     continue;
                 }
                 break;
+            //limpar_buffer();
+
             } while (1);
 
             if (escolha_id_medico == 0)
@@ -115,7 +117,7 @@ Estado tratar_modulo_consulta()
             {
                 printf("Digite o mês desejado (1-12) para %d:\n", ano);
                 char mes_str[10];
-                limpar_buffer(); // Limpa antes de ler o mês
+                //limpar_buffer(); // Limpa antes de ler o mês
                 fgets(mes_str, sizeof(mes_str), stdin);
                 mes_str[strcspn(mes_str, "\n")] = '\0';
                 if (sscanf(mes_str, "%d", &mes) != 1 || !validar_mes(mes))
@@ -126,7 +128,7 @@ Estado tratar_modulo_consulta()
 
                 printf("Digite o dia desejado para %02d/%d:\n", mes, ano);
                 char dia_str[10];
-                limpar_buffer(); // Limpa antes de ler o dia
+                //limpar_buffer(); // Limpa antes de ler o dia
                 fgets(dia_str, sizeof(dia_str), stdin);
                 dia_str[strcspn(dia_str, "\n")] = '\0';
                 if (sscanf(dia_str, "%d", &dia) != 1 || !validar_dia2(dia, mes, ano))
@@ -204,7 +206,7 @@ Estado tratar_modulo_consulta()
             {
                 printf("Escolha o índice do horário (1-%d, ou 0 para sair): ", algum_livre > 0 ? 9 : 0); // Ajusta o máx se necessário
                 char horario_str[10];
-                limpar_buffer(); // Limpa antes de ler o índice do horário
+                //limpar_buffer(); // Limpa antes de ler o índice do horário
                 fgets(horario_str, sizeof(horario_str), stdin);
                 horario_str[strcspn(horario_str, "\n")] = '\0';
 
