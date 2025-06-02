@@ -1,11 +1,11 @@
 id_medico,nome,crm,especialidade,telefone
-1,Dr. Arthur Bernardes,123456,Cardiologista,83991234567
-2,Dra. Beatriz Campos,234567,Pediatra,83992345678
-3,Dr. Caio Dantas,345678,Clínico Geral,83993456789
-4,Dra. Diana Esteves,456789,Dermatologista,83994567890
-5,Dr. Eric Ferreira,567890,Psiquiatra,83995678901
-6,Dra. Flavia Guedes,678901,Cardiologista,83996789012
-7,Dr. Gabriel Holanda,789012,Pediatra,83997890123
-8,Dra. Isabela Jales,890123,Clínico Geral,83998901234
-9,Dr. Jonas Lacerda,901234,Dermatologista,83980123456
-10,Dra. Karina Macedo,112233,Psiquiatra,83981234567
+1,Arthur Bernardes,123456,Cardiologista,83991234567
+2,Beatriz Campos,234567,Pediatra,83992345678
+3,Caio Dantas,345678,Clínico Geral,83993456789
+4,Diana Esteves,456789,Dermatologista,83994567890
+5,Eric Ferreira,567890,Psiquiatra,83995678901
+6,Flavia Guedes,678901,Cardiologista,83996789012
+7,Gabriel Holanda,789012,Pediatra,83997890123
+8,Isabela Jales,890123,Clínico Geral,83998901234
+9,Jonas Lacerda,901234,Dermatologista,83980123456
+10,Karina Macedo,112233,Psiquiatra,83981234567
